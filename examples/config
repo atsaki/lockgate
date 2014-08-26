@@ -1,0 +1,9 @@
+[user]
+secretkey = 
+apikey = 
+
+[server]
+path = client/api
+host = localhost
+protocol = http
+port = 8080
