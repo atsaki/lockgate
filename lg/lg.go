@@ -57,6 +57,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if strings.HasPrefix(cfg.Server.Path, "/") {
+		cfg.Server.Path = strings.Replace(cfg.Server.Path, "/", "", 1)
+	}
+
 	endpoint := url.URL{
 		Scheme: cfg.Server.Protocol,
 		Host:   fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port),
