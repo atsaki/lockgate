@@ -11,30 +11,18 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"code.google.com/p/gcfg"
-
 	"github.com/atsaki/golang-cloudstack-library"
 	"github.com/codegangsta/cli"
+	"github.com/vaughan0/go-ini"
 )
 
 const (
-	configfile = "~/.cloudmonkey/config"
+	sep = '\t'
 )
 
-type Config struct {
-	User struct {
-		Username  string
-		Password  string
-		Secretkey string
-		Apikey    string
-	}
-	Server struct {
-		Protocol string
-		Host     string
-		Port     string
-		Path     string
-	}
-}
+var (
+	client *cloudstack.Client
+)
 
 func expandPath(path string) string {
 	usr, _ := user.Current()
@@ -46,58 +34,111 @@ func expandPath(path string) string {
 	return path
 }
 
-func main() {
-
-	log.SetOutput(ioutil.Discard)
-
-	cfg := Config{}
-
-	err := gcfg.ReadFileInto(&cfg, expandPath(configfile))
+func setup(c *cli.Context) {
+	if !c.GlobalBool("debug") {
+		log.SetOutput(ioutil.Discard)
+	}
+	configfile := expandPath(c.GlobalString("config-file"))
+	log.Println("configfile:", configfile)
+	cfg, err := ini.LoadFile(configfile)
 	if err != nil {
 		log.Fatal(err)
 	}
+	var ok bool
 
-	if strings.HasPrefix(cfg.Server.Path, "/") {
-		cfg.Server.Path = strings.Replace(cfg.Server.Path, "/", "", 1)
+	profile, ok := cfg.Get("core", "profile")
+	if !ok {
+		profile = "local"
 	}
+	log.Println("profile:", profile)
 
-	endpoint := url.URL{
-		Scheme: cfg.Server.Protocol,
-		Host:   fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port),
-		Path:   cfg.Server.Path,
+	endpointUrl, ok := cfg.Get(profile, "url")
+	if !ok {
+		log.Fatalf("URL is not specified")
 	}
+	log.Println("url:", endpointUrl)
 
-	client, _ := cloudstack.NewClient(endpoint,
-		cfg.User.Apikey, cfg.User.Secretkey, cfg.User.Username, cfg.User.Password)
+	apikey, ok := cfg.Get(profile, "apikey")
+	if !ok {
+		apikey = ""
+	}
+	log.Println("apikey:", apikey)
 
-	sep := '\t'
+	secretkey, ok := cfg.Get(profile, "secretkey")
+	if !ok {
+		secretkey = ""
+	}
+	log.Println("secretkey:", secretkey)
+
+	username, ok := cfg.Get(profile, "username")
+	if !ok {
+		username = ""
+	}
+	log.Println("username:", username)
+
+	password, ok := cfg.Get(profile, "password")
+	if !ok {
+		password = ""
+	}
+	log.Println("password:", password)
+
+	endpoint, err := url.Parse(endpointUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("endpoint:", endpoint)
+
+	client, err = cloudstack.NewClient(*endpoint, apikey, secretkey,
+		username, password)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func main() {
+
 	tabw := new(tabwriter.Writer)
 	tabw.Init(os.Stdout, 0, 8, 0, byte(sep), 0)
 
 	app := cli.NewApp()
 	app.Name = "lg"
 	app.Usage = "lg comand"
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  "config-file, c",
+			Value: "~/.cloudmonkey/config",
+			Usage: "Config file path",
+		},
+		cli.BoolFlag{
+			Name:  "debug",
+			Usage: "Show debug messages",
+		},
+	}
 
 	app.Commands = []cli.Command{
 		{
 			Name:      "virtualmachines",
 			ShortName: "vms",
-			Usage:     "list virtualmachines",
+			Usage:     "List virtualmachines",
 			Action: func(c *cli.Context) {
+				setup(c)
 				params := cloudstack.ListVirtualMachinesParameter{}
-				resp, _ := client.ListVirtualMachines(params)
-				for _, v := range resp.Virtualmachine {
+				vms, err := client.ListVirtualMachines(params)
+				if err != nil {
+					log.Fatal(err)
+				}
+				for _, vm := range vms {
 					fmt.Fprintln(
 						tabw,
 						strings.Join(
 							[]string{
-								v.Id.String,
-								v.Name.String,
-								v.Displayname.String,
-								v.State.String,
-								v.Zonename.String,
-								v.Templatename.String,
-								v.Serviceofferingname.String,
+								vm.Id.String,
+								vm.Name.String,
+								vm.Displayname.String,
+								vm.State.String,
+								vm.Zonename.String,
+								vm.Templatename.String,
+								vm.Serviceofferingname.String,
 							}, string(sep)))
 				}
 				tabw.Flush()
@@ -105,26 +146,31 @@ func main() {
 		},
 		{
 			Name:  "deploy",
-			Usage: "deploy virtualmachine",
+			Usage: "Deploy virtualmachine",
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:  "zone",
+					Name:  "zone, z",
 					Value: "",
+					Usage: "The zoneid or zonename of the virtualmachine",
 				},
 				cli.StringFlag{
-					Name:  "serviceoffering",
+					Name:  "serviceoffering, s",
 					Value: "",
+					Usage: "The serviceofferingid or serviceofferingname of the virtualmachine",
 				},
 				cli.StringFlag{
-					Name:  "template",
+					Name:  "template, t",
 					Value: "",
+					Usage: "The templateid or templatename of the virtualmachine",
 				},
 				cli.StringFlag{
 					Name:  "displayname",
 					Value: "",
+					Usage: "The displayname of the virtualmachine",
 				},
 			},
 			Action: func(c *cli.Context) {
+				setup(c)
 				params := cloudstack.DeployVirtualMachineParameter{}
 				if c.String("zone") != "" {
 					params.SetZoneid(c.String("zone"))
@@ -138,174 +184,156 @@ func main() {
 				if c.String("displayname") != "" {
 					params.SetDisplayname(c.String("displayname"))
 				}
-				resp, _ := client.DeployVirtualMachine(params)
-				v := resp.Virtualmachine
+				vm, err := client.DeployVirtualMachine(params)
+				if err != nil {
+					log.Fatal(err)
+				}
 				fmt.Fprintln(
 					tabw,
 					strings.Join(
 						[]string{
-							v.Id.String,
-							v.Name.String,
-							v.Displayname.String,
-							v.State.String,
-							v.Zonename.String,
-							v.Templatename.String,
-							v.Serviceofferingname.String,
+							vm.Id.String,
+							vm.Name.String,
+							vm.Displayname.String,
+							vm.State.String,
+							vm.Zonename.String,
+							vm.Templatename.String,
+							vm.Serviceofferingname.String,
 						}, string(sep)))
 				tabw.Flush()
 			},
 		},
 		{
 			Name:  "start",
-			Usage: "start virtualmachine",
+			Usage: "Start virtualmachine",
 			Action: func(c *cli.Context) {
+				setup(c)
 				params := cloudstack.StartVirtualMachineParameter{}
+				var ids []string
 				if len(c.Args()) == 0 {
 					scanner := bufio.NewScanner(os.Stdin)
 					for scanner.Scan() {
-						id := strings.Split(scanner.Text(), string(sep))[0]
-						params.SetId(id)
-						resp, _ := client.StartVirtualMachine(params)
-						v := resp.Virtualmachine
-						fmt.Fprintln(
-							tabw,
-							strings.Join(
-								[]string{
-									v.Id.String,
-									v.Name.String,
-									v.Displayname.String,
-									v.State.String,
-									v.Zonename.String,
-									v.Templatename.String,
-									v.Serviceofferingname.String,
-								}, string(sep)))
+						ids = append(ids, strings.Split(scanner.Text(), string(sep))[0])
 					}
-					tabw.Flush()
-				} else {
-					params.SetId(c.Args()[0])
-					resp, _ := client.StartVirtualMachine(params)
-					v := resp.Virtualmachine
+				} else if len(c.Args()) == 1 {
+					ids = append(ids, c.Args()[0])
+				}
+				log.Println("ids:", ids)
+				for _, id := range ids {
+					params.SetId(id)
+					vm, err := client.StartVirtualMachine(params)
+					if err != nil {
+						log.Fatal(err)
+					}
 					fmt.Fprintln(
 						tabw,
 						strings.Join(
 							[]string{
-								v.Id.String,
-								v.Name.String,
-								v.Displayname.String,
-								v.State.String,
-								v.Zonename.String,
-								v.Templatename.String,
-								v.Serviceofferingname.String,
+								vm.Id.String,
+								vm.Name.String,
+								vm.Displayname.String,
+								vm.State.String,
+								vm.Zonename.String,
+								vm.Templatename.String,
+								vm.Serviceofferingname.String,
 							}, string(sep)))
-					tabw.Flush()
 				}
+				tabw.Flush()
 			},
 		},
 		{
 			Name:  "stop",
-			Usage: "stop virtualmachine",
+			Usage: "Stop virtualmachine",
 			Action: func(c *cli.Context) {
+				setup(c)
 				params := cloudstack.StopVirtualMachineParameter{}
+				var ids []string
 				if len(c.Args()) == 0 {
 					scanner := bufio.NewScanner(os.Stdin)
 					for scanner.Scan() {
-						id := strings.Split(scanner.Text(), string(sep))[0]
-						params.SetId(id)
-						resp, _ := client.StopVirtualMachine(params)
-						v := resp.Virtualmachine
-						fmt.Fprintln(
-							tabw,
-							strings.Join(
-								[]string{
-									v.Id.String,
-									v.Name.String,
-									v.Displayname.String,
-									v.State.String,
-									v.Zonename.String,
-									v.Templatename.String,
-									v.Serviceofferingname.String,
-								}, string(sep)))
+						ids = append(ids, strings.Split(scanner.Text(), string(sep))[0])
 					}
-					tabw.Flush()
-				} else {
-					params.SetId(c.Args()[0])
-					resp, _ := client.StopVirtualMachine(params)
-					v := resp.Virtualmachine
+				} else if len(c.Args()) == 1 {
+					ids = append(ids, c.Args()[0])
+				}
+				log.Println("ids:", ids)
+				for _, id := range ids {
+					params.SetId(id)
+					vm, err := client.StopVirtualMachine(params)
+					if err != nil {
+						log.Fatal(err)
+					}
 					fmt.Fprintln(
 						tabw,
 						strings.Join(
 							[]string{
-								v.Id.String,
-								v.Name.String,
-								v.Displayname.String,
-								v.State.String,
-								v.Zonename.String,
-								v.Templatename.String,
-								v.Serviceofferingname.String,
+								vm.Id.String,
+								vm.Name.String,
+								vm.Displayname.String,
+								vm.State.String,
+								vm.Zonename.String,
+								vm.Templatename.String,
+								vm.Serviceofferingname.String,
 							}, string(sep)))
-					tabw.Flush()
 				}
+				tabw.Flush()
 			},
 		},
 		{
 			Name:  "destroy",
-			Usage: "destroy virtualmachine",
+			Usage: "Destroy virtualmachine",
 			Action: func(c *cli.Context) {
+				setup(c)
 				params := cloudstack.DestroyVirtualMachineParameter{}
+				var ids []string
 				if len(c.Args()) == 0 {
 					scanner := bufio.NewScanner(os.Stdin)
 					for scanner.Scan() {
-						id := strings.Split(scanner.Text(), string(sep))[0]
-						params.SetId(id)
-						resp, _ := client.DestroyVirtualMachine(params)
-						v := resp.Virtualmachine
-						fmt.Fprintln(
-							tabw,
-							strings.Join(
-								[]string{
-									v.Id.String,
-									v.Name.String,
-									v.Displayname.String,
-									v.State.String,
-									v.Zonename.String,
-									v.Templatename.String,
-									v.Serviceofferingname.String,
-								}, string(sep)))
+						ids = append(ids, strings.Split(scanner.Text(), string(sep))[0])
 					}
-					tabw.Flush()
-				} else {
-					params.SetId(c.Args()[0])
-					resp, _ := client.DestroyVirtualMachine(params)
-					v := resp.Virtualmachine
+				} else if len(c.Args()) == 1 {
+					ids = append(ids, c.Args()[0])
+				}
+				log.Println("ids:", ids)
+				for _, id := range ids {
+					params.SetId(id)
+					vm, err := client.DestroyVirtualMachine(params)
+					if err != nil {
+						log.Fatal(err)
+					}
 					fmt.Fprintln(
 						tabw,
 						strings.Join(
 							[]string{
-								v.Id.String,
-								v.Name.String,
-								v.Displayname.String,
-								v.State.String,
-								v.Zonename.String,
-								v.Templatename.String,
-								v.Serviceofferingname.String,
+								vm.Id.String,
+								vm.Name.String,
+								vm.Displayname.String,
+								vm.State.String,
+								vm.Zonename.String,
+								vm.Templatename.String,
+								vm.Serviceofferingname.String,
 							}, string(sep)))
-					tabw.Flush()
 				}
+				tabw.Flush()
 			},
 		},
 		{
 			Name:  "zones",
-			Usage: "list zones",
+			Usage: "List zones",
 			Action: func(c *cli.Context) {
+				setup(c)
 				params := cloudstack.ListZonesParameter{}
-				resp, _ := client.ListZones(params)
-				for _, v := range resp.Zone {
+				zones, err := client.ListZones(params)
+				if err != nil {
+					log.Fatal(err)
+				}
+				for _, zone := range zones {
 					fmt.Fprintln(
 						tabw,
 						strings.Join(
 							[]string{
-								v.Id.String,
-								v.Name.String,
+								zone.Id.String,
+								zone.Name.String,
 							}, string(sep)))
 				}
 				tabw.Flush()
@@ -314,17 +342,24 @@ func main() {
 		{
 			Name:      "serviceofferings",
 			ShortName: "sizes",
-			Usage:     "list serviceofferings",
+			Usage:     "List serviceofferings",
 			Action: func(c *cli.Context) {
+				setup(c)
 				params := cloudstack.ListServiceOfferingsParameter{}
-				resp, _ := client.ListServiceOfferings(params)
-				for _, v := range resp.Serviceoffering {
+				serviceofferings, err := client.ListServiceOfferings(params)
+				if err != nil {
+					log.Fatal(err)
+				}
+				for _, serviceoffering := range serviceofferings {
 					fmt.Fprintln(
 						tabw,
 						strings.Join(
 							[]string{
-								v.Id.String,
-								v.Name.String,
+								serviceoffering.Id.String,
+								serviceoffering.Name.String,
+								fmt.Sprint(serviceoffering.Cpunumber.Int64),
+								fmt.Sprint(serviceoffering.Cpuspeed.Int64),
+								fmt.Sprint(serviceoffering.Memory.Int64),
 							}, string(sep)))
 				}
 				tabw.Flush()
@@ -335,17 +370,21 @@ func main() {
 			ShortName: "images",
 			Usage:     "list templates",
 			Action: func(c *cli.Context) {
+				setup(c)
 				params := cloudstack.ListTemplatesParameter{}
 				params.SetTemplatefilter("featured")
-				resp, _ := client.ListTemplates(params)
-				for _, v := range resp.Template {
+				templates, err := client.ListTemplates(params)
+				if err != nil {
+					log.Fatal(err)
+				}
+				for _, template := range templates {
 					fmt.Fprintln(
 						tabw,
 						strings.Join(
 							[]string{
-								v.Id.String,
-								v.Name.String,
-								v.Displaytext.String,
+								template.Id.String,
+								template.Name.String,
+								template.Displaytext.String,
 							}, string(sep)))
 				}
 				tabw.Flush()
@@ -356,16 +395,47 @@ func main() {
 			ShortName: "nws",
 			Usage:     "list network",
 			Action: func(c *cli.Context) {
+				setup(c)
 				params := cloudstack.ListNetworksParameter{}
-				resp, _ := client.ListNetworks(params)
-				for _, v := range resp.Network {
+				networks, err := client.ListNetworks(params)
+				if err != nil {
+					log.Fatal(err)
+				}
+				for _, network := range networks {
 					fmt.Fprintln(
 						tabw,
 						strings.Join(
 							[]string{
-								v.Id.String,
-								v.Name.String,
-								v.Networkofferingname.String,
+								network.Id.String,
+								network.Name.String,
+								network.Networkofferingname.String,
+							}, string(sep)))
+				}
+				tabw.Flush()
+			},
+		},
+		{
+			Name:      "publicipaddresses",
+			ShortName: "ips",
+			Usage:     "list ipaddresses",
+			Action: func(c *cli.Context) {
+				setup(c)
+				params := cloudstack.ListPublicIpAddressesParameter{}
+				ips, err := client.ListPublicIpAddresses(params)
+				if err != nil {
+					log.Fatal(err)
+				}
+				for _, ip := range ips {
+					fmt.Fprintln(
+						tabw,
+						strings.Join(
+							[]string{
+								ip.Id.String,
+								ip.Zonename.String,
+								ip.Associatednetworkname.String,
+								fmt.Sprint(ip.Issourcenat.Bool),
+								ip.Ipaddress.String,
+								ip.Virtualmachinedisplayname.String,
 							}, string(sep)))
 				}
 				tabw.Flush()
