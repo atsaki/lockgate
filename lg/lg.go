@@ -35,9 +35,11 @@ func expandPath(path string) string {
 }
 
 func setup(c *cli.Context) {
+
 	if !c.GlobalBool("debug") {
 		log.SetOutput(ioutil.Discard)
 	}
+
 	configfile := expandPath(c.GlobalString("config-file"))
 	log.Println("configfile:", configfile)
 	cfg, err := ini.LoadFile(configfile)
@@ -49,6 +51,9 @@ func setup(c *cli.Context) {
 	profile, ok := cfg.Get("core", "profile")
 	if !ok {
 		profile = "local"
+	}
+	if c.GlobalString("profile") != "" {
+		profile = c.GlobalString("profile")
 	}
 	log.Println("profile:", profile)
 
@@ -108,6 +113,11 @@ func main() {
 			Name:  "config-file, c",
 			Value: "~/.cloudmonkey/config",
 			Usage: "Config file path",
+		},
+		cli.StringFlag{
+			Name:  "profile, P",
+			Value: "",
+			Usage: "Server profile",
 		},
 		cli.BoolFlag{
 			Name:  "debug",
