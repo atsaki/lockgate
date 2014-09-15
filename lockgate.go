@@ -7,26 +7,16 @@ import (
 	"log"
 	"net/url"
 	"os"
-	"os/user"
 	"regexp"
 	"sort"
 	"strings"
 	"text/tabwriter"
 
 	"github.com/atsaki/golang-cloudstack-library"
+	"github.com/atsaki/lockgate/util"
 	"github.com/codegangsta/cli"
 	"github.com/vaughan0/go-ini"
 )
-
-func expandPath(path string) string {
-	usr, _ := user.Current()
-	home := usr.HomeDir
-
-	if strings.HasPrefix(path, "~/") {
-		path = strings.Replace(path, "~/", home+"/", 1)
-	}
-	return path
-}
 
 func convertToArrayOfMap(v interface{}) ([]map[string]interface{}, error) {
 	var m []map[string]interface{}
@@ -51,7 +41,7 @@ func SetLogLevel(c *cli.Context) {
 
 func GetClient(c *cli.Context) (*cloudstack.Client, error) {
 
-	configfile := expandPath(c.GlobalString("config-file"))
+	configfile := util.ExpandPath(c.GlobalString("config-file"))
 	log.Println("configfile:", configfile)
 	cfg, err := ini.LoadFile(configfile)
 	if err != nil {
