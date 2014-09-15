@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"os/user"
+	"regexp"
 	"strings"
 	"text/tabwriter"
 
@@ -44,12 +45,14 @@ func setup(c *cli.Context) {
 	log.Println("configfile:", configfile)
 	cfg, err := ini.LoadFile(configfile)
 	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to load config:", configfile)
 		log.Fatal(err)
 	}
 	var ok bool
 
 	profile, ok := cfg.Get("core", "profile")
 	if !ok {
+		log.Println("profile is not specified. use local profile.")
 		profile = "local"
 	}
 	if c.GlobalString("profile") != "" {
@@ -59,10 +62,23 @@ func setup(c *cli.Context) {
 
 	endpointUrl, ok := cfg.Get(profile, "url")
 	if !ok {
-		log.Fatalf("URL is not specified")
+		msg := fmt.Sprintln("url is missing in config:", configfile, ",",
+			"profile:", profile)
+		fmt.Fprint(os.Stderr, msg)
+		log.Fatal(msg)
 	}
 	log.Println("url:", endpointUrl)
 
+	endpoint, err := url.Parse(endpointUrl)
+	if err != nil {
+		msg := fmt.Sprintln("Failed to parse endpoint URL")
+		fmt.Fprintln(os.Stderr, msg)
+		log.Println(msg)
+		log.Fatal(err)
+	}
+	log.Println("endpoint:", endpoint)
+
+	re := regexp.MustCompile(".")
 	apikey, ok := cfg.Get(profile, "apikey")
 	if !ok {
 		apikey = ""
@@ -72,8 +88,9 @@ func setup(c *cli.Context) {
 	secretkey, ok := cfg.Get(profile, "secretkey")
 	if !ok {
 		secretkey = ""
+		log.Println("secretkey:", "")
 	}
-	log.Println("secretkey:", secretkey)
+	log.Println("secretkey:", re.ReplaceAllString(secretkey, "*"))
 
 	username, ok := cfg.Get(profile, "username")
 	if !ok {
@@ -85,13 +102,13 @@ func setup(c *cli.Context) {
 	if !ok {
 		password = ""
 	}
-	log.Println("password:", password)
+	log.Println("password:", re.ReplaceAllString(password, "*"))
 
-	endpoint, err := url.Parse(endpointUrl)
-	if err != nil {
-		log.Fatal(err)
+	if (apikey == "" || secretkey == "") && username == "" {
+		msg := fmt.Sprintln("apikey/secretkey or usename/password must be specified.")
+		fmt.Fprint(os.Stderr, msg)
+		log.Fatal(msg)
 	}
-	log.Println("endpoint:", endpoint)
 
 	client, err = cloudstack.NewClient(*endpoint, apikey, secretkey,
 		username, password)
