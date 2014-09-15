@@ -39,6 +39,7 @@ func main() {
 	}
 
 	app.Commands = []cli.Command{
+		commands.Init,
 		commands.ListVirtualMachines,
 		commands.ListZones,
 		commands.ListServiceOfferings,

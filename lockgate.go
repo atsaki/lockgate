@@ -12,11 +12,43 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/BurntSushi/toml"
 	"github.com/atsaki/golang-cloudstack-library"
 	"github.com/atsaki/lockgate/util"
 	"github.com/codegangsta/cli"
 	"github.com/vaughan0/go-ini"
 )
+
+type Account struct {
+	URL       string `toml:"url"`
+	Username  string `toml:"username"`
+	Password  string `toml:"password"`
+	APIKey    string `toml:"apikey"`
+	SecretKey string `toml:"secretkey"`
+}
+
+type Command struct {
+	Keys []string               `toml:"keys"`
+	Args map[string]interface{} `toml:"args"`
+}
+
+type GlobalOption struct {
+	Profile string `toml:"profile"`
+}
+
+type ProfileOption struct {
+}
+
+type GlobalConfig struct {
+	Option   GlobalOption       `toml:"option"`
+	Account  Account            `toml:"account"`
+	Commands map[string]Command `toml:"commands"`
+}
+
+type ProfileConfig struct {
+	Account  Account            `toml:"account"`
+	Commands map[string]Command `toml:"commands"`
+}
 
 func convertToArrayOfMap(v interface{}) ([]map[string]interface{}, error) {
 	var m []map[string]interface{}
@@ -181,11 +213,26 @@ func (tw *TabWriter) Print(xs interface{}) {
 
 func GetTabWriter(c *cli.Context) *TabWriter {
 
+	config, err := LoadGlobalConfig()
+	if err != nil {
+		log.Println(err)
+		log.Fatal(err)
+	}
+
 	keys := []string{}
-	for _, k := range strings.Split(c.GlobalString("keys"), ",") {
-		k = strings.TrimSpace(k)
-		if k != "" {
-			keys = append(keys, k)
+	if c.GlobalString("keys") != "" {
+		for _, k := range strings.Split(c.GlobalString("keys"), ",") {
+			k = strings.TrimSpace(k)
+			if k != "" {
+				keys = append(keys, k)
+			}
+		}
+	} else {
+		command, ok := config.Commands[c.Command.Name]
+		if ok {
+			keys = command.Keys
+		} else {
+			log.Println("Failed to get keys from config: " + c.Command.Name)
 		}
 	}
 
@@ -202,4 +249,16 @@ func GetTabWriter(c *cli.Context) *TabWriter {
 	tw.writer.Init(os.Stdout, tw.minwidth, tw.tabwidth, tw.padding,
 		tw.separator, 0)
 	return &tw
+}
+
+func LoadGlobalConfig() (*GlobalConfig, error) {
+	var globalConfig GlobalConfig
+	_, err := toml.DecodeFile(GlobalConfFile, &globalConfig)
+	if err != nil {
+		msg := fmt.Sprintf("Failed to decode %s ...", GlobalConfFile)
+		fmt.Fprintln(os.Stderr, msg)
+		log.Println(msg)
+		return nil, err
+	}
+	return &globalConfig, err
 }
