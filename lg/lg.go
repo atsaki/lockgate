@@ -14,11 +14,6 @@ func main() {
 	app.Usage = "lg comand"
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:  "config-file, c",
-			Value: "~/.cloudmonkey/config",
-			Usage: "Config file path",
-		},
-		cli.StringFlag{
 			Name:  "profile, P",
 			Value: "",
 			Usage: "Profile to connect CloudStack service",

@@ -7,12 +7,9 @@ import (
 )
 
 var (
-	GlobalConfDir       = util.ExpandPath(path.Join("~", ".lg"))
-	GlobalConfFile      = path.Join(GlobalConfDir, "config")
-	DefaultGlobalConfig = GlobalConfig{
-		Option: GlobalOption{
-			Profile: "default",
-		},
+	ConfigDir     = util.ExpandPath(path.Join("~", ".lg"))
+	ConfigFile    = "config.toml"
+	DefaultConfig = Config{
 		Account: Account{
 			URL:       "http://localhost:8080/client/api",
 			Username:  "admin",
@@ -30,6 +27,13 @@ var (
 					"zonename",
 					"templatename",
 					"serviceofferingname",
+				},
+				Args: map[string]interface{}{},
+			},
+			"zones": Command{
+				Keys: []string{
+					"id",
+					"name",
 				},
 				Args: map[string]interface{}{},
 			},

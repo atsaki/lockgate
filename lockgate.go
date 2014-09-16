@@ -7,16 +7,14 @@ import (
 	"log"
 	"net/url"
 	"os"
-	"regexp"
+	"path"
 	"sort"
 	"strings"
 	"text/tabwriter"
 
 	"github.com/BurntSushi/toml"
 	"github.com/atsaki/golang-cloudstack-library"
-	"github.com/atsaki/lockgate/util"
 	"github.com/codegangsta/cli"
-	"github.com/vaughan0/go-ini"
 )
 
 type Account struct {
@@ -32,20 +30,7 @@ type Command struct {
 	Args map[string]interface{} `toml:"args"`
 }
 
-type GlobalOption struct {
-	Profile string `toml:"profile"`
-}
-
-type ProfileOption struct {
-}
-
-type GlobalConfig struct {
-	Option   GlobalOption       `toml:"option"`
-	Account  Account            `toml:"account"`
-	Commands map[string]Command `toml:"commands"`
-}
-
-type ProfileConfig struct {
+type Config struct {
 	Account  Account            `toml:"account"`
 	Commands map[string]Command `toml:"commands"`
 }
@@ -73,77 +58,26 @@ func SetLogLevel(c *cli.Context) {
 
 func GetClient(c *cli.Context) (*cloudstack.Client, error) {
 
-	configfile := util.ExpandPath(c.GlobalString("config-file"))
-	log.Println("configfile:", configfile)
-	cfg, err := ini.LoadFile(configfile)
+	profile := c.GlobalString("profile")
+	config, err := LoadConfig(profile)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to load config:", configfile)
-		log.Fatal(err)
-	}
-	var ok bool
-
-	profile, ok := cfg.Get("core", "profile")
-	if !ok {
-		log.Println("profile is not specified. use local profile.")
-		profile = "local"
-	}
-	if c.GlobalString("profile") != "" {
-		profile = c.GlobalString("profile")
-	}
-	log.Println("profile:", profile)
-
-	endpointUrl, ok := cfg.Get(profile, "url")
-	if !ok {
-		msg := fmt.Sprintln("url is missing in config:", configfile, ",",
-			"profile:", profile)
-		fmt.Fprint(os.Stderr, msg)
-		log.Fatal(msg)
-	}
-	log.Println("url:", endpointUrl)
-
-	endpoint, err := url.Parse(endpointUrl)
-	if err != nil {
-		msg := fmt.Sprintln("Failed to parse endpoint URL")
+		msg := "Failed to load config. profile: " + c.GlobalString("profile")
 		fmt.Fprintln(os.Stderr, msg)
 		log.Println(msg)
 		log.Fatal(err)
 	}
-	log.Println("endpoint:", endpoint)
 
-	re := regexp.MustCompile(".")
-	apikey, ok := cfg.Get(profile, "apikey")
-	if !ok {
-		apikey = ""
-	}
-	log.Println("apikey:", apikey)
-
-	secretkey, ok := cfg.Get(profile, "secretkey")
-	if !ok {
-		secretkey = ""
-		log.Println("secretkey:", "")
-	}
-	log.Println("secretkey:", re.ReplaceAllString(secretkey, "*"))
-
-	username, ok := cfg.Get(profile, "username")
-	if !ok {
-		username = ""
-	}
-	log.Println("username:", username)
-
-	password, ok := cfg.Get(profile, "password")
-	if !ok {
-		password = ""
-	}
-	log.Println("password:", re.ReplaceAllString(password, "*"))
-
-	if (apikey == "" || secretkey == "") && username == "" {
-		msg := fmt.Sprintln("apikey/secretkey or usename/password must be specified.")
-		fmt.Fprint(os.Stderr, msg)
-		log.Fatal(msg)
+	url, err := url.Parse(config.Account.URL)
+	if err != nil {
+		msg := "Failed to parse URL: " + config.Account.URL
+		fmt.Fprintln(os.Stderr, msg)
+		log.Println(msg)
+		log.Fatal(err)
 	}
 
-	return cloudstack.NewClient(*endpoint, apikey, secretkey,
-		username, password)
+	return cloudstack.NewClient(*url,
+		config.Account.APIKey, config.Account.SecretKey,
+		config.Account.Username, config.Account.Password)
 }
 
 type Writer interface {
@@ -213,7 +147,8 @@ func (tw *TabWriter) Print(xs interface{}) {
 
 func GetTabWriter(c *cli.Context) *TabWriter {
 
-	config, err := LoadGlobalConfig()
+	profile := c.GlobalString("profile")
+	config, err := LoadConfig(profile)
 	if err != nil {
 		log.Println(err)
 		log.Fatal(err)
@@ -251,14 +186,20 @@ func GetTabWriter(c *cli.Context) *TabWriter {
 	return &tw
 }
 
-func LoadGlobalConfig() (*GlobalConfig, error) {
-	var globalConfig GlobalConfig
-	_, err := toml.DecodeFile(GlobalConfFile, &globalConfig)
-	if err != nil {
-		msg := fmt.Sprintf("Failed to decode %s ...", GlobalConfFile)
-		fmt.Fprintln(os.Stderr, msg)
-		log.Println(msg)
-		return nil, err
+func GetConfigFilePath(profile string) string {
+	return path.Join(ConfigDir, profile, ConfigFile)
+}
+
+func LoadConfig(profile string) (*Config, error) {
+	config := new(Config)
+	configFilePath := GetConfigFilePath(profile)
+	if _, err := os.Stat(configFilePath); os.IsNotExist(err) {
+		configFilePath = GetConfigFilePath("default")
 	}
-	return &globalConfig, err
+	_, err := toml.DecodeFile(configFilePath, config)
+	if err != nil {
+		msg := fmt.Sprintf("Failed to decode %s ...", configFilePath)
+		log.Println(msg)
+	}
+	return config, err
 }
