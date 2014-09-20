@@ -8,6 +8,21 @@ import (
 )
 
 func main() {
+
+	cli.AppHelpTemplate = `NAME:
+   {{.Name}} - {{.Usage}}
+
+USAGE:
+   {{.Name}} {{if .Flags}}[global options] {{end}}<command>{{if .Flags}} [command options]{{end}} [arguments...]
+
+COMMANDS:
+   {{range .Commands}}{{.Name}}{{with .ShortName}}, {{.}}{{end}}{{ "\t" }}{{.Usage}}
+   {{end}}{{if .Flags}}
+GLOBAL OPTIONS:
+   {{range .Flags}}{{.}}
+   {{end}}{{end}}
+`
+
 	cli.SubcommandHelpTemplate = `NAME:
    {{.Name}} - {{.Usage}}
 
@@ -23,7 +38,7 @@ OPTIONS:
 `
 	app := cli.NewApp()
 	app.Name = "lg"
-	app.Usage = "lg command"
+	app.Usage = "CLI for CloudStack"
 	app.Version = "0.0.1"
 	app.EnableBashCompletion = true
 	app.Flags = []cli.Flag{
