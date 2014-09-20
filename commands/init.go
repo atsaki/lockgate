@@ -15,7 +15,7 @@ import (
 var (
 	Init = cli.Command{
 		Name:  "init",
-		Usage: "Create configuration files",
+		Usage: "Create profile configuration file",
 		Action: func(c *cli.Context) {
 
 			lockgate.SetLogLevel(c)

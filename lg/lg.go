@@ -8,10 +8,23 @@ import (
 )
 
 func main() {
+	cli.SubcommandHelpTemplate = `NAME:
+   {{.Name}} - {{.Usage}}
 
+USAGE:
+   {{.Name}} <command>{{if .Flags}} [command options]{{end}} [arguments...]
+
+COMMANDS:
+   {{range .Commands}}{{.ShortName}}{{ "\t" }}{{.Usage}}
+   {{end}}{{if .Flags}}
+OPTIONS:
+   {{range .Flags}}{{.}}
+   {{end}}{{end}}
+`
 	app := cli.NewApp()
 	app.Name = "lg"
-	app.Usage = "lg comand"
+	app.Usage = "lg command"
+	app.Version = "0.0.1"
 	app.EnableBashCompletion = true
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -37,17 +50,12 @@ func main() {
 	app.Commands = []cli.Command{
 		commands.Init,
 
-		commands.VMList,
-		commands.VMStart,
-		commands.VMStop,
-		commands.VMDeploy,
-		commands.VMDestroy,
-
-		commands.NetworkList,
-		commands.IPList,
-		commands.ServiceOfferingList,
-		commands.TemplateList,
-		commands.ZoneList,
+		commands.IP,
+		commands.Network,
+		commands.ServiceOffering,
+		commands.Template,
+		commands.VM,
+		commands.Zone,
 	}
 
 	app.Run(os.Args)

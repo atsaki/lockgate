@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	NetworkList = cli.Command{
-		Name:      "network-list",
-		ShortName: "networks",
-		Usage:     "List network",
+	IPList = cli.Command{
+		Name:      "ip-list",
+		ShortName: "list",
+		Usage:     "List ipaddresses",
 		Action: func(c *cli.Context) {
 
 			lockgate.SetLogLevel(c)
@@ -22,8 +22,8 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			params := cloudstack.ListNetworksParameter{}
-			result, err := client.ListNetworks(params)
+			params := cloudstack.ListPublicIpAddressesParameter{}
+			result, err := client.ListPublicIpAddresses(params)
 			if err != nil {
 				fmt.Println(err)
 				log.Fatal(err)
@@ -31,6 +31,14 @@ var (
 
 			w := lockgate.GetTabWriter(c)
 			w.Print(result)
+		},
+	}
+
+	IP = cli.Command{
+		Name:  "ip",
+		Usage: "Manage ipaddresses",
+		Subcommands: []cli.Command{
+			IPList,
 		},
 	}
 )

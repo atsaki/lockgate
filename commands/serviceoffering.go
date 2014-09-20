@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	ZoneList = cli.Command{
-		Name:      "zone-list",
-		ShortName: "zones",
-		Usage:     "List zones",
+	ServiceOfferingList = cli.Command{
+		Name:      "serviceoffering-list",
+		ShortName: "list",
+		Usage:     "List serviceofferings",
 		Action: func(c *cli.Context) {
 
 			lockgate.SetLogLevel(c)
@@ -22,8 +22,8 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			params := cloudstack.ListZonesParameter{}
-			result, err := client.ListZones(params)
+			params := cloudstack.ListServiceOfferingsParameter{}
+			result, err := client.ListServiceOfferings(params)
 			if err != nil {
 				fmt.Println(err)
 				log.Fatal(err)
@@ -31,6 +31,14 @@ var (
 
 			w := lockgate.GetTabWriter(c)
 			w.Print(result)
+		},
+	}
+
+	ServiceOffering = cli.Command{
+		Name:  "serviceoffering",
+		Usage: "Manage serviceoffering",
+		Subcommands: []cli.Command{
+			ServiceOfferingList,
 		},
 	}
 )

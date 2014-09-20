@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	TemplateList = cli.Command{
-		Name:      "template-list",
-		ShortName: "templates",
-		Usage:     "List templates",
+	NetworkList = cli.Command{
+		Name:      "network-list",
+		ShortName: "list",
+		Usage:     "List network",
 		Action: func(c *cli.Context) {
 
 			lockgate.SetLogLevel(c)
@@ -22,9 +22,8 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			params := cloudstack.ListTemplatesParameter{}
-			params.SetTemplatefilter("executable")
-			result, err := client.ListTemplates(params)
+			params := cloudstack.ListNetworksParameter{}
+			result, err := client.ListNetworks(params)
 			if err != nil {
 				fmt.Println(err)
 				log.Fatal(err)
@@ -32,6 +31,14 @@ var (
 
 			w := lockgate.GetTabWriter(c)
 			w.Print(result)
+		},
+	}
+
+	Network = cli.Command{
+		Name:  "network",
+		Usage: "Manage network",
+		Subcommands: []cli.Command{
+			NetworkList,
 		},
 	}
 )
