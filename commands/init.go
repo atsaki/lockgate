@@ -2,13 +2,14 @@ package commands
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path"
 
-	"github.com/BurntSushi/toml"
 	"github.com/atsaki/lockgate"
 	"github.com/codegangsta/cli"
+	"gopkg.in/yaml.v1"
 )
 
 var (
@@ -60,18 +61,16 @@ var (
 				fmt.Fprintln(os.Stderr, msg)
 				log.Println(msg)
 
-				f, err := os.Create(configFilePath)
+				b, err := yaml.Marshal(lockgate.DefaultConfig)
 				if err != nil {
-					msg := "Failed to create config: " + configFilePath
+					msg := "Failed to marshal default config"
 					fmt.Fprintln(os.Stderr, msg)
 					fmt.Fprintln(os.Stderr, err)
 					log.Println(msg)
 					log.Fatal(err)
 				}
 
-				config := lockgate.DefaultConfig
-				encoder := toml.NewEncoder(f)
-				err = encoder.Encode(config)
+				err = ioutil.WriteFile(configFilePath, b, 0644)
 				if err != nil {
 					msg := "Failed to write config: " + configFilePath
 					fmt.Fprintln(os.Stderr, msg)

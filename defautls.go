@@ -7,8 +7,17 @@ import (
 )
 
 var (
-	ConfigDir     = util.ExpandPath(path.Join("~", ".lg"))
-	ConfigFile    = "config.toml"
+	ConfigDir          = util.ExpandPath(path.Join("~", ".lg"))
+	ConfigFile         = "config.yaml"
+	VirtualMachineKeys = []string{
+		"id",
+		"name",
+		"displayname",
+		"state",
+		"zonename",
+		"templatename",
+		"serviceofferingname",
+	}
 	DefaultConfig = Config{
 		Account: Account{
 			URL:       "http://localhost:8080/client/api",
@@ -19,23 +28,58 @@ var (
 		},
 		Commands: map[string]Command{
 			"virtualmachines": Command{
+				Options: map[string]interface{}{},
+				Keys:    VirtualMachineKeys,
+			},
+			"start": Command{
+				Options: map[string]interface{}{},
+				Keys:    VirtualMachineKeys,
+			},
+			"stop": Command{
+				Options: map[string]interface{}{},
+				Keys:    VirtualMachineKeys,
+			},
+			"deploy": Command{
+				Options: map[string]interface{}{},
+				Keys:    VirtualMachineKeys,
+			},
+			"destroy": Command{
+				Options: map[string]interface{}{},
+				Keys:    VirtualMachineKeys,
+			},
+			"networks": Command{
+				Options: map[string]interface{}{},
 				Keys: []string{
 					"id",
 					"name",
-					"displayname",
-					"state",
-					"zonename",
-					"templatename",
-					"serviceofferingname",
+					"networkofferingname",
 				},
-				Args: map[string]interface{}{},
+			},
+			"serviceofferings": Command{
+				Options: map[string]interface{}{},
+				Keys: []string{
+					"id",
+					"name",
+					"cpunumber",
+					"cpuspeed",
+					"memory",
+				},
+			},
+			"publicipaddresses": Command{
+				Options: map[string]interface{}{},
+				Keys: []string{
+					"id",
+					"zonename",
+					"issourcenat",
+					"ipaddress",
+				},
 			},
 			"zones": Command{
+				Options: map[string]interface{}{},
 				Keys: []string{
 					"id",
 					"name",
 				},
-				Args: map[string]interface{}{},
 			},
 		},
 	}

@@ -12,27 +12,27 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/BurntSushi/toml"
 	"github.com/atsaki/golang-cloudstack-library"
 	"github.com/codegangsta/cli"
+	"gopkg.in/yaml.v1"
 )
 
 type Account struct {
-	URL       string `toml:"url"`
-	Username  string `toml:"username"`
-	Password  string `toml:"password"`
-	APIKey    string `toml:"apikey"`
-	SecretKey string `toml:"secretkey"`
+	URL       string `yaml:"url"`
+	Username  string `yaml:"username"`
+	Password  string `yaml:"password"`
+	APIKey    string `yaml:"apikey"`
+	SecretKey string `yaml:"secretkey"`
 }
 
 type Command struct {
-	Keys []string               `toml:"keys"`
-	Args map[string]interface{} `toml:"args"`
+	Options map[string]interface{} `yaml:"options"`
+	Keys    []string               `yaml:"keys"`
 }
 
 type Config struct {
-	Account  Account            `toml:"account"`
-	Commands map[string]Command `toml:"commands"`
+	Account  Account            `yaml:"account"`
+	Commands map[string]Command `yaml:"command"`
 }
 
 func convertToArrayOfMap(v interface{}) ([]map[string]interface{}, error) {
@@ -196,10 +196,25 @@ func LoadConfig(profile string) (*Config, error) {
 	if _, err := os.Stat(configFilePath); os.IsNotExist(err) {
 		configFilePath = GetConfigFilePath("default")
 	}
-	_, err := toml.DecodeFile(configFilePath, config)
+
+	contents, err := ioutil.ReadFile(configFilePath)
 	if err != nil {
-		msg := fmt.Sprintf("Failed to decode %s ...", configFilePath)
+		msg := fmt.Sprintf("Failed to read %s ...", configFilePath)
+		fmt.Fprintln(os.Stderr, msg)
+		fmt.Fprintln(os.Stderr, err)
 		log.Println(msg)
+		log.Println(err)
+		return nil, err
+	}
+
+	err = yaml.Unmarshal(contents, config)
+	if err != nil {
+		msg := fmt.Sprintf("Failed to unmarshal the contents of %s ...", configFilePath)
+		fmt.Fprintln(os.Stderr, msg)
+		fmt.Fprintln(os.Stderr, err)
+		log.Println(msg)
+		log.Println(err)
+		return nil, err
 	}
 	return config, err
 }
