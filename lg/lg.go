@@ -64,6 +64,7 @@ OPTIONS:
 
 	app.Commands = []cli.Command{
 		commands.Init,
+		commands.API,
 
 		commands.IP,
 		commands.Network,

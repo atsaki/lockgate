@@ -231,3 +231,21 @@ func GetArgumentsFromStdin() []string {
 	}
 	return args
 }
+
+func PrettyPrint(b []byte) {
+	var v interface{}
+	err := json.Unmarshal(b, &v)
+	if err != nil {
+		fmt.Println(string(b))
+		return
+	}
+
+	out, err := json.MarshalIndent(v, "", "    ")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to marshal.")
+		fmt.Println(string(b))
+		return
+	}
+
+	fmt.Println(string(out))
+}
