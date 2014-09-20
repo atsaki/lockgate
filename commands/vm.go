@@ -1,13 +1,9 @@
 package commands
 
 import (
-	"bufio"
 	"fmt"
 	"log"
-	"os"
-	"strings"
 
-	"github.com/andrew-d/go-termutil"
 	"github.com/atsaki/golang-cloudstack-library"
 	"github.com/atsaki/lockgate"
 	"github.com/codegangsta/cli"
@@ -54,13 +50,7 @@ var (
 				params.SetId(c.String("id"))
 			}
 
-			var ids []string
-			if !termutil.Isatty(os.Stdin.Fd()) {
-				scanner := bufio.NewScanner(os.Stdin)
-				for scanner.Scan() {
-					ids = append(ids, strings.Fields(scanner.Text())...)
-				}
-			}
+			ids := lockgate.GetArgumentsFromStdin()
 			ids = append(ids, c.Args()...)
 
 			log.Println("ids:", ids)
@@ -95,13 +85,7 @@ var (
 				params.SetId(c.String("id"))
 			}
 
-			var ids []string
-			if !termutil.Isatty(os.Stdin.Fd()) {
-				scanner := bufio.NewScanner(os.Stdin)
-				for scanner.Scan() {
-					ids = append(ids, strings.Fields(scanner.Text())...)
-				}
-			}
+			ids := lockgate.GetArgumentsFromStdin()
 			ids = append(ids, c.Args()...)
 
 			log.Println("ids:", ids)
@@ -193,13 +177,7 @@ var (
 				params.SetId(c.String("id"))
 			}
 
-			var ids []string
-			if !termutil.Isatty(os.Stdin.Fd()) {
-				scanner := bufio.NewScanner(os.Stdin)
-				for scanner.Scan() {
-					ids = append(ids, strings.Fields(scanner.Text())...)
-				}
-			}
+			ids := lockgate.GetArgumentsFromStdin()
 			ids = append(ids, c.Args()...)
 
 			log.Println("ids:", ids)

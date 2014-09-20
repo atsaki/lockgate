@@ -1,6 +1,7 @@
 package lockgate
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -12,6 +13,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/andrew-d/go-termutil"
 	"github.com/atsaki/golang-cloudstack-library"
 	"github.com/codegangsta/cli"
 	"gopkg.in/yaml.v1"
@@ -217,4 +219,15 @@ func LoadConfig(profile string) (*Config, error) {
 		return nil, err
 	}
 	return config, err
+}
+
+func GetArgumentsFromStdin() []string {
+	var args []string
+	if !termutil.Isatty(os.Stdin.Fd()) {
+		scanner := bufio.NewScanner(os.Stdin)
+		for scanner.Scan() {
+			args = append(args, strings.Fields(scanner.Text())...)
+		}
+	}
+	return args
 }
