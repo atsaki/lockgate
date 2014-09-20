@@ -12,6 +12,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "lg"
 	app.Usage = "lg comand"
+	app.EnableBashCompletion = true
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:  "profile, P",
