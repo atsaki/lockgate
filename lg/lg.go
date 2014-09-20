@@ -35,16 +35,18 @@ func main() {
 
 	app.Commands = []cli.Command{
 		commands.Init,
-		commands.ListVirtualMachines,
-		commands.ListZones,
-		commands.ListServiceOfferings,
-		commands.ListTemplates,
-		commands.ListNetworks,
-		commands.ListPublicIpAddresses,
-		commands.DeployVirtualMachine,
-		commands.DestroyVirtualMachine,
-		commands.StartVirtualMachine,
-		commands.StopVirtualMachine,
+
+		commands.VMList,
+		commands.VMStart,
+		commands.VMStop,
+		commands.VMDeploy,
+		commands.VMDestroy,
+
+		commands.NetworkList,
+		commands.IPList,
+		commands.ServiceOfferingList,
+		commands.TemplateList,
+		commands.ZoneList,
 	}
 
 	app.Run(os.Args)

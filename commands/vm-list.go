@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	ListTemplates = cli.Command{
-		Name:      "templates",
-		ShortName: "images",
-		Usage:     "list templates",
+	VMList = cli.Command{
+		Name:      "vm-list",
+		ShortName: "vms",
+		Usage:     "List virtualmachines",
 		Action: func(c *cli.Context) {
 
 			lockgate.SetLogLevel(c)
@@ -22,9 +22,8 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			params := cloudstack.ListTemplatesParameter{}
-			params.SetTemplatefilter("executable")
-			result, err := client.ListTemplates(params)
+			params := cloudstack.ListVirtualMachinesParameter{}
+			result, err := client.ListVirtualMachines(params)
 			if err != nil {
 				fmt.Println(err)
 				log.Fatal(err)

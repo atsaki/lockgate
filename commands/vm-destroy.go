@@ -13,9 +13,10 @@ import (
 )
 
 var (
-	StopVirtualMachine = cli.Command{
-		Name:  "stop",
-		Usage: "Stop virtualmachine",
+	VMDestroy = cli.Command{
+		Name:      "vm-destroy",
+		ShortName: "destroy",
+		Usage:     "Destroy virtualmachine",
 		Action: func(c *cli.Context) {
 			lockgate.SetLogLevel(c)
 
@@ -23,7 +24,7 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			params := cloudstack.StopVirtualMachineParameter{}
+			params := cloudstack.DestroyVirtualMachineParameter{}
 			if c.String("id") != "" {
 				params.SetId(c.String("id"))
 			}
@@ -41,7 +42,7 @@ var (
 			vms := []cloudstack.Virtualmachine{}
 			for _, id := range ids {
 				params.SetId(id)
-				vm, err := client.StopVirtualMachine(params)
+				vm, err := client.DestroyVirtualMachine(params)
 				if err != nil {
 					log.Fatal(err)
 				}

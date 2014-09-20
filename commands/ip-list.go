@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	ListVirtualMachines = cli.Command{
-		Name:      "virtualmachines",
-		ShortName: "vms",
-		Usage:     "List virtualmachines",
+	IPList = cli.Command{
+		Name:      "ip-list",
+		ShortName: "ips",
+		Usage:     "List ipaddresses",
 		Action: func(c *cli.Context) {
 
 			lockgate.SetLogLevel(c)
@@ -22,8 +22,8 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			params := cloudstack.ListVirtualMachinesParameter{}
-			result, err := client.ListVirtualMachines(params)
+			params := cloudstack.ListPublicIpAddressesParameter{}
+			result, err := client.ListPublicIpAddresses(params)
 			if err != nil {
 				fmt.Println(err)
 				log.Fatal(err)

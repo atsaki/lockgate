@@ -13,9 +13,10 @@ import (
 )
 
 var (
-	StartVirtualMachine = cli.Command{
-		Name:  "start",
-		Usage: "Start virtualmachine",
+	VMStart = cli.Command{
+		Name:      "vm-start",
+		ShortName: "start",
+		Usage:     "Start virtualmachine",
 		Action: func(c *cli.Context) {
 			lockgate.SetLogLevel(c)
 

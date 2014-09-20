@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	ListPublicIpAddresses = cli.Command{
-		Name:      "publicipaddresses",
-		ShortName: "ips",
-		Usage:     "list ipaddresses",
+	ZoneList = cli.Command{
+		Name:      "zone-list",
+		ShortName: "zones",
+		Usage:     "List zones",
 		Action: func(c *cli.Context) {
 
 			lockgate.SetLogLevel(c)
@@ -22,8 +22,8 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			params := cloudstack.ListPublicIpAddressesParameter{}
-			result, err := client.ListPublicIpAddresses(params)
+			params := cloudstack.ListZonesParameter{}
+			result, err := client.ListZones(params)
 			if err != nil {
 				fmt.Println(err)
 				log.Fatal(err)

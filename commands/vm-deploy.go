@@ -10,9 +10,10 @@ import (
 )
 
 var (
-	DeployVirtualMachine = cli.Command{
-		Name:  "deploy",
-		Usage: "Deploy virtualmachine",
+	VMDeploy = cli.Command{
+		Name:      "vm-deploy",
+		ShortName: "deploy",
+		Usage:     "Deploy virtualmachine",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "zone, z",

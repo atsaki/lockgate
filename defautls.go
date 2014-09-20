@@ -27,27 +27,27 @@ var (
 			SecretKey: "",
 		},
 		Commands: map[string]Command{
-			"virtualmachines": Command{
+			"vm-list": Command{
 				Options: map[string]interface{}{},
 				Keys:    VirtualMachineKeys,
 			},
-			"start": Command{
+			"vm-start": Command{
 				Options: map[string]interface{}{},
 				Keys:    VirtualMachineKeys,
 			},
-			"stop": Command{
+			"vm-stop": Command{
 				Options: map[string]interface{}{},
 				Keys:    VirtualMachineKeys,
 			},
-			"deploy": Command{
+			"vm-deploy": Command{
 				Options: map[string]interface{}{},
 				Keys:    VirtualMachineKeys,
 			},
-			"destroy": Command{
+			"vm-destroy": Command{
 				Options: map[string]interface{}{},
 				Keys:    VirtualMachineKeys,
 			},
-			"networks": Command{
+			"network-list": Command{
 				Options: map[string]interface{}{},
 				Keys: []string{
 					"id",
@@ -55,7 +55,7 @@ var (
 					"networkofferingname",
 				},
 			},
-			"serviceofferings": Command{
+			"serviceoffering-list": Command{
 				Options: map[string]interface{}{},
 				Keys: []string{
 					"id",
@@ -65,7 +65,15 @@ var (
 					"memory",
 				},
 			},
-			"publicipaddresses": Command{
+			"template-list": Command{
+				Options: map[string]interface{}{},
+				Keys: []string{
+					"id",
+					"name",
+					"displaytext",
+				},
+			},
+			"ip-list": Command{
 				Options: map[string]interface{}{},
 				Keys: []string{
 					"id",
@@ -74,7 +82,7 @@ var (
 					"ipaddress",
 				},
 			},
-			"zones": Command{
+			"zone-list": Command{
 				Options: map[string]interface{}{},
 				Keys: []string{
 					"id",

@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	ListServiceOfferings = cli.Command{
-		Name:      "serviceofferings",
-		ShortName: "sizes",
-		Usage:     "List serviceofferings",
+	NetworkList = cli.Command{
+		Name:      "network-list",
+		ShortName: "networks",
+		Usage:     "List network",
 		Action: func(c *cli.Context) {
 
 			lockgate.SetLogLevel(c)
@@ -22,8 +22,8 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			params := cloudstack.ListServiceOfferingsParameter{}
-			result, err := client.ListServiceOfferings(params)
+			params := cloudstack.ListNetworksParameter{}
+			result, err := client.ListNetworks(params)
 			if err != nil {
 				fmt.Println(err)
 				log.Fatal(err)
