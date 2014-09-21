@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/atsaki/lockgate"
 	"github.com/atsaki/lockgate/cli"
@@ -34,12 +35,13 @@ var (
 
 			client, err := lockgate.GetClient(c)
 			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
 				log.Fatal(err)
 			}
 
 			result, err := client.Request(command, params)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Fprintln(os.Stderr, err)
 				log.Fatal(err)
 			}
 			lockgate.PrettyPrint(result)

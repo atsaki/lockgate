@@ -61,6 +61,7 @@ var (
 				params.SetId(id)
 				vm, err := client.StartVirtualMachine(params)
 				if err != nil {
+					fmt.Println(err)
 					log.Fatal(err)
 				}
 				vms = append(vms, vm)
@@ -99,6 +100,7 @@ var (
 				params.SetId(id)
 				vm, err := client.StopVirtualMachine(params)
 				if err != nil {
+					fmt.Println(err)
 					log.Fatal(err)
 				}
 				vms = append(vms, vm)
@@ -205,6 +207,7 @@ var (
 				params.SetId(id)
 				vm, err := client.DestroyVirtualMachine(params)
 				if err != nil {
+					fmt.Println(err)
 					log.Fatal(err)
 				}
 				vms = append(vms, vm)
