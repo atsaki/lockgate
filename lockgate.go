@@ -19,7 +19,7 @@ import (
 	"gopkg.in/yaml.v1"
 )
 
-type Account struct {
+type AccountConfig struct {
 	URL       string `yaml:"url"`
 	Username  string `yaml:"username"`
 	Password  string `yaml:"password"`
@@ -27,14 +27,14 @@ type Account struct {
 	SecretKey string `yaml:"secretkey"`
 }
 
-type Command struct {
+type CommandConfig struct {
 	Options map[string]interface{} `yaml:"options"`
 	Keys    []string               `yaml:"keys"`
 }
 
 type Config struct {
-	Account  Account            `yaml:"account"`
-	Commands map[string]Command `yaml:"command"`
+	Account  AccountConfig            `yaml:"account"`
+	Commands map[string]CommandConfig `yaml:"command"`
 }
 
 func convertToArrayOfMap(v interface{}) ([]map[string]interface{}, error) {

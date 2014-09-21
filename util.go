@@ -1,11 +1,11 @@
-package util
+package lockgate
 
 import (
 	"os/user"
 	"strings"
 )
 
-func ExpandPath(path string) string {
+func expandPath(path string) string {
 	usr, _ := user.Current()
 	home := usr.HomeDir
 

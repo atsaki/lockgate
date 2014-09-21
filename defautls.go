@@ -2,12 +2,10 @@ package lockgate
 
 import (
 	"path"
-
-	"github.com/atsaki/lockgate/util"
 )
 
 var (
-	ConfigDir          = util.ExpandPath(path.Join("~", ".lg"))
+	ConfigDir          = expandPath(path.Join("~", ".lg"))
 	ConfigFile         = "config.yaml"
 	VirtualMachineKeys = []string{
 		"id",
@@ -19,35 +17,35 @@ var (
 		"serviceofferingname",
 	}
 	DefaultConfig = Config{
-		Account: Account{
+		Account: AccountConfig{
 			URL:       "http://localhost:8080/client/api",
 			Username:  "admin",
 			Password:  "password",
 			APIKey:    "",
 			SecretKey: "",
 		},
-		Commands: map[string]Command{
-			"vm-list": Command{
+		Commands: map[string]CommandConfig{
+			"vm-list": CommandConfig{
 				Options: map[string]interface{}{},
 				Keys:    VirtualMachineKeys,
 			},
-			"vm-start": Command{
+			"vm-start": CommandConfig{
 				Options: map[string]interface{}{},
 				Keys:    VirtualMachineKeys,
 			},
-			"vm-stop": Command{
+			"vm-stop": CommandConfig{
 				Options: map[string]interface{}{},
 				Keys:    VirtualMachineKeys,
 			},
-			"vm-deploy": Command{
+			"vm-deploy": CommandConfig{
 				Options: map[string]interface{}{},
 				Keys:    VirtualMachineKeys,
 			},
-			"vm-destroy": Command{
+			"vm-destroy": CommandConfig{
 				Options: map[string]interface{}{},
 				Keys:    VirtualMachineKeys,
 			},
-			"network-list": Command{
+			"network-list": CommandConfig{
 				Options: map[string]interface{}{},
 				Keys: []string{
 					"id",
@@ -55,7 +53,7 @@ var (
 					"networkofferingname",
 				},
 			},
-			"serviceoffering-list": Command{
+			"serviceoffering-list": CommandConfig{
 				Options: map[string]interface{}{},
 				Keys: []string{
 					"id",
@@ -65,7 +63,7 @@ var (
 					"memory",
 				},
 			},
-			"template-list": Command{
+			"template-list": CommandConfig{
 				Options: map[string]interface{}{},
 				Keys: []string{
 					"id",
@@ -73,7 +71,7 @@ var (
 					"displaytext",
 				},
 			},
-			"ip-list": Command{
+			"ip-list": CommandConfig{
 				Options: map[string]interface{}{},
 				Keys: []string{
 					"id",
@@ -82,7 +80,7 @@ var (
 					"ipaddress",
 				},
 			},
-			"zone-list": Command{
+			"zone-list": CommandConfig{
 				Options: map[string]interface{}{},
 				Keys: []string{
 					"id",
