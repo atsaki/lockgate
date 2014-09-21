@@ -1,4 +1,4 @@
-package commands
+package command
 
 import (
 	"fmt"
@@ -6,14 +6,13 @@ import (
 
 	"github.com/atsaki/golang-cloudstack-library"
 	"github.com/atsaki/lockgate"
-	"github.com/codegangsta/cli"
+	"github.com/atsaki/lockgate/cli"
 )
 
 var (
 	ZoneList = cli.Command{
-		Name:      "zone-list",
-		ShortName: "list",
-		Usage:     "List zones",
+		Name: "list",
+		Help: "List zones",
 		Action: func(c *cli.Context) {
 
 			lockgate.SetLogLevel(c)
@@ -35,9 +34,9 @@ var (
 	}
 
 	Zone = cli.Command{
-		Name:  "zone",
-		Usage: "Manage zone",
-		Subcommands: []cli.Command{
+		Name: "zone",
+		Help: "Manage zone",
+		Commands: []cli.Command{
 			ZoneList,
 		},
 	}

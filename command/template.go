@@ -1,4 +1,4 @@
-package commands
+package command
 
 import (
 	"fmt"
@@ -6,14 +6,13 @@ import (
 
 	"github.com/atsaki/golang-cloudstack-library"
 	"github.com/atsaki/lockgate"
-	"github.com/codegangsta/cli"
+	"github.com/atsaki/lockgate/cli"
 )
 
 var (
 	TemplateList = cli.Command{
-		Name:      "template-list",
-		ShortName: "list",
-		Usage:     "List templates",
+		Name: "list",
+		Help: "List templates",
 		Action: func(c *cli.Context) {
 
 			lockgate.SetLogLevel(c)
@@ -36,9 +35,9 @@ var (
 	}
 
 	Template = cli.Command{
-		Name:  "template",
-		Usage: "Manage template",
-		Subcommands: []cli.Command{
+		Name: "template",
+		Help: "Manage template",
+		Commands: []cli.Command{
 			TemplateList,
 		},
 	}

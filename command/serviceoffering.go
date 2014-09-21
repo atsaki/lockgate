@@ -1,4 +1,4 @@
-package commands
+package command
 
 import (
 	"fmt"
@@ -6,14 +6,13 @@ import (
 
 	"github.com/atsaki/golang-cloudstack-library"
 	"github.com/atsaki/lockgate"
-	"github.com/codegangsta/cli"
+	"github.com/atsaki/lockgate/cli"
 )
 
 var (
-	IPList = cli.Command{
-		Name:      "ip-list",
-		ShortName: "list",
-		Usage:     "List ipaddresses",
+	ServiceOfferingList = cli.Command{
+		Name: "list",
+		Help: "List serviceofferings",
 		Action: func(c *cli.Context) {
 
 			lockgate.SetLogLevel(c)
@@ -22,8 +21,8 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			params := cloudstack.ListPublicIpAddressesParameter{}
-			result, err := client.ListPublicIpAddresses(params)
+			params := cloudstack.ListServiceOfferingsParameter{}
+			result, err := client.ListServiceOfferings(params)
 			if err != nil {
 				fmt.Println(err)
 				log.Fatal(err)
@@ -34,11 +33,11 @@ var (
 		},
 	}
 
-	IP = cli.Command{
-		Name:  "ip",
-		Usage: "Manage ipaddresses",
-		Subcommands: []cli.Command{
-			IPList,
+	ServiceOffering = cli.Command{
+		Name: "serviceoffering",
+		Help: "Manage serviceoffering",
+		Commands: []cli.Command{
+			ServiceOfferingList,
 		},
 	}
 )

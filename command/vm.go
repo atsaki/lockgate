@@ -1,4 +1,4 @@
-package commands
+package command
 
 import (
 	"fmt"
@@ -6,14 +6,13 @@ import (
 
 	"github.com/atsaki/golang-cloudstack-library"
 	"github.com/atsaki/lockgate"
-	"github.com/codegangsta/cli"
+	"github.com/atsaki/lockgate/cli"
 )
 
 var (
 	VMList = cli.Command{
-		Name:      "vm-list",
-		ShortName: "list",
-		Usage:     "List virtualmachines",
+		Name: "list",
+		Help: "List virtualmachines",
 		Action: func(c *cli.Context) {
 
 			lockgate.SetLogLevel(c)
@@ -35,9 +34,15 @@ var (
 	}
 
 	VMStart = cli.Command{
-		Name:      "vm-start",
-		ShortName: "start",
-		Usage:     "Start virtualmachine",
+		Name: "start",
+		Help: "Start virtualmachine",
+		Args: []cli.Argument{
+			cli.Argument{
+				Name: "ids",
+				Help: "VM ids",
+				Type: cli.Strings,
+			},
+		},
 		Action: func(c *cli.Context) {
 			lockgate.SetLogLevel(c)
 
@@ -46,12 +51,9 @@ var (
 				log.Fatal(err)
 			}
 			params := cloudstack.StartVirtualMachineParameter{}
-			if c.String("id") != "" {
-				params.SetId(c.String("id"))
-			}
 
 			ids := lockgate.GetArgumentsFromStdin()
-			ids = append(ids, c.Args()...)
+			ids = append(ids, c.Command.Arg("ids").Value().([]string)...)
 
 			log.Println("ids:", ids)
 			vms := []cloudstack.Virtualmachine{}
@@ -70,9 +72,15 @@ var (
 	}
 
 	VMStop = cli.Command{
-		Name:      "vm-stop",
-		ShortName: "stop",
-		Usage:     "Stop virtualmachine",
+		Name: "stop",
+		Help: "Stop virtualmachine",
+		Args: []cli.Argument{
+			cli.Argument{
+				Name: "ids",
+				Help: "VM ids",
+				Type: cli.Strings,
+			},
+		},
 		Action: func(c *cli.Context) {
 			lockgate.SetLogLevel(c)
 
@@ -81,12 +89,9 @@ var (
 				log.Fatal(err)
 			}
 			params := cloudstack.StopVirtualMachineParameter{}
-			if c.String("id") != "" {
-				params.SetId(c.String("id"))
-			}
 
 			ids := lockgate.GetArgumentsFromStdin()
-			ids = append(ids, c.Args()...)
+			ids = append(ids, c.Command.Arg("ids").Value().([]string)...)
 
 			log.Println("ids:", ids)
 			vms := []cloudstack.Virtualmachine{}
@@ -105,29 +110,34 @@ var (
 	}
 
 	VMDeploy = cli.Command{
-		Name:      "vm-deploy",
-		ShortName: "deploy",
-		Usage:     "Deploy virtualmachine",
+		Name: "deploy",
+		Help: "Deploy virtualmachine",
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:  "zone, z",
-				Value: "",
-				Usage: "The zoneid or zonename of the virtualmachine",
+			cli.Flag{
+				Name:     "zone",
+				Short:    'z',
+				Help:     "The zoneid or zonename of the virtualmachine",
+				Type:     cli.String,
+				Required: true,
 			},
-			cli.StringFlag{
-				Name:  "serviceoffering, s",
-				Value: "",
-				Usage: "The serviceofferingid or serviceofferingname of the virtualmachine",
+			cli.Flag{
+				Name:     "serviceoffering",
+				Short:    's',
+				Help:     "The serviceofferingid or serviceofferingname of the virtualmachine",
+				Type:     cli.String,
+				Required: true,
 			},
-			cli.StringFlag{
-				Name:  "template, t",
-				Value: "",
-				Usage: "The templateid or templatename of the virtualmachine",
+			cli.Flag{
+				Name:     "template",
+				Short:    't',
+				Help:     "The templateid or templatename of the virtualmachine",
+				Type:     cli.String,
+				Required: true,
 			},
-			cli.StringFlag{
-				Name:  "displayname",
-				Value: "",
-				Usage: "The displayname of the virtualmachine",
+			cli.Flag{
+				Name: "displayname",
+				Help: "The displayname of the virtualmachine",
+				Type: cli.String,
 			},
 		},
 		Action: func(c *cli.Context) {
@@ -138,18 +148,24 @@ var (
 				log.Fatal(err)
 			}
 			params := cloudstack.DeployVirtualMachineParameter{}
-			if c.String("zone") != "" {
-				params.SetZoneid(c.String("zone"))
+
+			zone := c.Command.Arg("zone").Value().(string)
+			if zone != "" {
+				params.SetZoneid(zone)
 			}
-			if c.String("serviceoffering") != "" {
-				params.SetServiceofferingid(c.String("serviceoffering"))
+			serviceoffering := c.Command.Arg("serviceoffering").Value().(string)
+			if serviceoffering != "" {
+				params.SetServiceofferingid(serviceoffering)
 			}
-			if c.String("template") != "" {
-				params.SetTemplateid(c.String("template"))
+			template := c.Command.Arg("template").Value().(string)
+			if template != "" {
+				params.SetTemplateid(template)
 			}
-			if c.String("displayname") != "" {
-				params.SetDisplayname(c.String("displayname"))
+			displayname := c.Command.Arg("displayname").Value().(string)
+			if displayname != "" {
+				params.SetDisplayname(displayname)
 			}
+
 			vm, err := client.DeployVirtualMachine(params)
 			if err != nil {
 				fmt.Println(err)
@@ -162,9 +178,15 @@ var (
 	}
 
 	VMDestroy = cli.Command{
-		Name:      "vm-destroy",
-		ShortName: "destroy",
-		Usage:     "Destroy virtualmachine",
+		Name: "destroy",
+		Help: "Destroy virtualmachine",
+		Args: []cli.Argument{
+			cli.Argument{
+				Name: "ids",
+				Help: "VM ids",
+				Type: cli.Strings,
+			},
+		},
 		Action: func(c *cli.Context) {
 			lockgate.SetLogLevel(c)
 
@@ -173,12 +195,9 @@ var (
 				log.Fatal(err)
 			}
 			params := cloudstack.DestroyVirtualMachineParameter{}
-			if c.String("id") != "" {
-				params.SetId(c.String("id"))
-			}
 
 			ids := lockgate.GetArgumentsFromStdin()
-			ids = append(ids, c.Args()...)
+			ids = append(ids, c.Command.Arg("ids").Value().([]string)...)
 
 			log.Println("ids:", ids)
 			vms := []cloudstack.Virtualmachine{}
@@ -197,9 +216,9 @@ var (
 	}
 
 	VM = cli.Command{
-		Name:  "vm",
-		Usage: "Manage virtualmachine",
-		Subcommands: []cli.Command{
+		Name: "vm",
+		Help: "Manage virtualmachine",
+		Commands: []cli.Command{
 			VMList,
 			VMStart,
 			VMStop,

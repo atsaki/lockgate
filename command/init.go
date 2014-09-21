@@ -1,4 +1,4 @@
-package commands
+package command
 
 import (
 	"fmt"
@@ -8,21 +8,28 @@ import (
 	"path"
 
 	"github.com/atsaki/lockgate"
-	"github.com/codegangsta/cli"
+	"github.com/atsaki/lockgate/cli"
 	"gopkg.in/yaml.v1"
 )
 
 var (
 	Init = cli.Command{
-		Name:  "init",
-		Usage: "Create profile configuration file",
+		Name: "init",
+		Help: "Create profile configuration file",
+		Args: []cli.Argument{
+			cli.Argument{
+				Name: "profile",
+				Help: "Profile name",
+				Type: cli.String,
+			},
+		},
 		Action: func(c *cli.Context) {
 
 			lockgate.SetLogLevel(c)
 
 			newProfile := "default"
-			if len(c.Args()) > 0 {
-				newProfile = c.Args()[0]
+			if c.Command.Arg("profile") != nil {
+				newProfile = c.Command.Arg("profile").Value().(string)
 			}
 
 			if _, err := os.Stat(lockgate.ConfigDir); os.IsNotExist(err) {
