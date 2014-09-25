@@ -151,19 +151,19 @@ var (
 			}
 			params := cloudstack.DeployVirtualMachineParameter{}
 
-			zone := c.Command.Arg("zone").Value().(string)
+			zone := c.Command.Flag("zone").Value().(string)
 			if zone != "" {
 				params.SetZoneid(zone)
 			}
-			serviceoffering := c.Command.Arg("serviceoffering").Value().(string)
+			serviceoffering := c.Command.Flag("serviceoffering").Value().(string)
 			if serviceoffering != "" {
 				params.SetServiceofferingid(serviceoffering)
 			}
-			template := c.Command.Arg("template").Value().(string)
+			template := c.Command.Flag("template").Value().(string)
 			if template != "" {
 				params.SetTemplateid(template)
 			}
-			displayname := c.Command.Arg("displayname").Value().(string)
+			displayname := c.Command.Flag("displayname").Value().(string)
 			if displayname != "" {
 				params.SetDisplayname(displayname)
 			}
