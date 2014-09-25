@@ -40,8 +40,10 @@ var (
 		Commands: []cli.Command{
 			command.Init,
 			command.API,
+			command.Firewallrule,
 			command.IP,
 			command.Network,
+			command.Portforwardingrule,
 			command.ServiceOffering,
 			command.Template,
 			command.VM,

@@ -53,6 +53,31 @@ var (
 					"networkofferingname",
 				},
 			},
+			"firewallrule list": CommandConfig{
+				Options: map[string]interface{}{},
+				Keys: []string{
+					"id",
+					"cidrlist",
+					"protocol",
+					"startport",
+					"endport",
+					"icmpcode",
+					"icmptype",
+				},
+			},
+			"portforwardingrule list": CommandConfig{
+				Options: map[string]interface{}{},
+				Keys: []string{
+					"id",
+					"ipaddress",
+					"virtualmachinename",
+					"protocol",
+					"publicport",
+					"publicendport",
+					"privateport",
+					"privateendport",
+				},
+			},
 			"serviceoffering list": CommandConfig{
 				Options: map[string]interface{}{},
 				Keys: []string{
