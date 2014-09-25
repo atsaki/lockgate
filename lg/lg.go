@@ -14,11 +14,10 @@ var (
 		Version: "0.0.1",
 		Flags: []cli.Flag{
 			cli.Flag{
-				Name:    "profile",
-				Short:   'P',
-				Default: "default",
-				Help:    "Profile to connect CloudStack",
-				Type:    cli.String,
+				Name:  "profile",
+				Short: 'P',
+				Help:  "Profile to connect CloudStack",
+				Type:  cli.String,
 			},
 			cli.Flag{
 				Name:  "no-header",

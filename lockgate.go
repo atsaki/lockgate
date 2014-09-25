@@ -73,9 +73,26 @@ func SetLogLevel(c *cli.Context) {
 	}
 }
 
+func GetProfile(c *cli.Context) string {
+	profile := c.App.Flag("profile").Value().(string)
+	if profile == "" {
+		for _, e := range os.Environ() {
+			pair := strings.Split(e, "=")
+			if pair[0] == "LGPROF" {
+				profile = pair[1]
+			}
+		}
+		if profile == "" {
+			profile = "default"
+		}
+	}
+	return profile
+}
+
 func GetClient(c *cli.Context) (*cloudstack.Client, error) {
 
-	profile := c.App.Flag("profile").Value().(string)
+	profile := GetProfile(c)
+
 	config, err := LoadConfig(profile)
 	if err != nil {
 		msg := "Failed to load config. profile: " + profile

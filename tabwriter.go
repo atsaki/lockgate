@@ -90,7 +90,7 @@ func (tw *TabWriter) Print(xs interface{}) {
 
 func GetTabWriter(c *cli.Context) *TabWriter {
 
-	profile := c.App.Flag("profile").Value().(string)
+	profile := GetProfile(c)
 	config, err := LoadConfig(profile)
 	if err != nil {
 		log.Println(err)
