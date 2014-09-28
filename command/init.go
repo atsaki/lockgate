@@ -29,7 +29,7 @@ var (
 
 			newProfile := "default"
 			if c.Command.Arg("profile") != nil {
-				newProfile = c.Command.Arg("profile").Value().(string)
+				newProfile = c.Command.Arg("profile").String()
 			}
 
 			if _, err := os.Stat(lockgate.ConfigDir); os.IsNotExist(err) {

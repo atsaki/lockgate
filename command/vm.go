@@ -53,7 +53,7 @@ var (
 			params := cloudstack.StartVirtualMachineParameter{}
 
 			ids := lockgate.GetArgumentsFromStdin()
-			ids = append(ids, c.Command.Arg("ids").Value().([]string)...)
+			ids = append(ids, c.Command.Arg("ids").Strings()...)
 
 			log.Println("ids:", ids)
 			vms := []cloudstack.Virtualmachine{}
@@ -92,7 +92,7 @@ var (
 			params := cloudstack.StopVirtualMachineParameter{}
 
 			ids := lockgate.GetArgumentsFromStdin()
-			ids = append(ids, c.Command.Arg("ids").Value().([]string)...)
+			ids = append(ids, c.Command.Arg("ids").Strings()...)
 
 			log.Println("ids:", ids)
 			vms := []cloudstack.Virtualmachine{}
@@ -151,19 +151,19 @@ var (
 			}
 			params := cloudstack.DeployVirtualMachineParameter{}
 
-			zone := c.Command.Flag("zone").Value().(string)
+			zone := c.Command.Flag("zone").String()
 			if zone != "" {
 				params.SetZoneid(zone)
 			}
-			serviceoffering := c.Command.Flag("serviceoffering").Value().(string)
+			serviceoffering := c.Command.Flag("serviceoffering").String()
 			if serviceoffering != "" {
 				params.SetServiceofferingid(serviceoffering)
 			}
-			template := c.Command.Flag("template").Value().(string)
+			template := c.Command.Flag("template").String()
 			if template != "" {
 				params.SetTemplateid(template)
 			}
-			displayname := c.Command.Flag("displayname").Value().(string)
+			displayname := c.Command.Flag("displayname").String()
 			if displayname != "" {
 				params.SetDisplayname(displayname)
 			}
@@ -199,7 +199,7 @@ var (
 			params := cloudstack.DestroyVirtualMachineParameter{}
 
 			ids := lockgate.GetArgumentsFromStdin()
-			ids = append(ids, c.Command.Arg("ids").Value().([]string)...)
+			ids = append(ids, c.Command.Arg("ids").Strings()...)
 
 			log.Println("ids:", ids)
 			vms := []cloudstack.Virtualmachine{}

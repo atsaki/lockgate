@@ -68,13 +68,13 @@ func LoadConfig(profile string) (*Config, error) {
 }
 
 func SetLogLevel(c *cli.Context) {
-	if !c.App.Flag("debug").Value().(bool) {
+	if !c.App.Flag("debug").Bool() {
 		log.SetOutput(ioutil.Discard)
 	}
 }
 
 func GetProfile(c *cli.Context) string {
-	profile := c.App.Flag("profile").Value().(string)
+	profile := c.App.Flag("profile").String()
 	if profile == "" {
 		for _, e := range os.Environ() {
 			pair := strings.Split(e, "=")

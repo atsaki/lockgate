@@ -98,8 +98,8 @@ func GetTabWriter(c *cli.Context) *TabWriter {
 	}
 
 	keys := []string{}
-	if c.App.Flag("keys").Value().(string) != "" {
-		keys = strings.Split(c.App.Flag("keys").Value().(string), ",")
+	if c.App.Flag("keys").String() != "" {
+		keys = strings.Split(c.App.Flag("keys").String(), ",")
 		for i := range keys {
 			keys[i] = strings.TrimSpace(keys[i])
 		}
@@ -118,7 +118,7 @@ func GetTabWriter(c *cli.Context) *TabWriter {
 		minwidth:  0,
 		tabwidth:  8,
 		padding:   0,
-		header:    !c.App.Flag("no-header").Value().(bool),
+		header:    !c.App.Flag("no-header").Bool(),
 		keys:      keys,
 	}
 

@@ -32,8 +32,8 @@ var (
 
 			lockgate.SetLogLevel(c)
 
-			command := c.Command.Arg("command").Value().(string)
-			params := c.Command.Arg("params").Value().(map[string]string)
+			command := c.Command.Arg("command").String()
+			params := c.Command.Arg("params").StringMap()
 
 			client, err := lockgate.GetClient(c)
 			if err != nil {

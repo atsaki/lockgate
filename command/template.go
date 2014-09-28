@@ -49,17 +49,17 @@ var (
 			params := cloudstack.ListTemplatesParameter{}
 
 			ids := lockgate.GetArgumentsFromStdin()
-			ids = append(ids, c.Command.Arg("ids").Value().([]string)...)
+			ids = append(ids, c.Command.Arg("ids").Strings()...)
 
-			templatefilter := c.Command.Flag("templatefilter").Value().(string)
+			templatefilter := c.Command.Flag("templatefilter").String()
 			if templatefilter != "" {
 				params.SetTemplatefilter(templatefilter)
 			}
-			name := c.Command.Flag("name").Value().(string)
+			name := c.Command.Flag("name").String()
 			if name != "" {
 				params.SetName(name)
 			}
-			zone := c.Command.Flag("zone").Value().(string)
+			zone := c.Command.Flag("zone").String()
 			if zone != "" {
 				params.SetZoneid(zone)
 			}

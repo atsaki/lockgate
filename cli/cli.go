@@ -36,52 +36,6 @@ const (
 	Uint64
 )
 
-func getValueFromPointer(p unsafe.Pointer, valueType int) interface{} {
-	switch valueType {
-	case Bool:
-		return *(*bool)(p)
-	case Bytes:
-		return *(*units.Base2Bytes)(p)
-	case Duration:
-		return *(*time.Duration)(p)
-	case Enum:
-		return *(*string)(p)
-	case ExistingDir:
-		return *(*string)(p)
-	case ExistingFile:
-		return *(*string)(p)
-	case File:
-		return *(**os.File)(p)
-	case Float:
-		return *(*float64)(p)
-	case IP:
-		return *(*net.IP)(p)
-	case Int:
-		return *(*int)(p)
-	case Int64:
-		return *(*int64)(p)
-	case OpenFile:
-		return *(**os.File)(p)
-	case String:
-		return *(*string)(p)
-	case StringMap:
-		return *(*map[string]string)(p)
-	case Strings:
-		return *(*[]string)(p)
-	case TCP:
-		return *(**net.TCPAddr)(p)
-	case TCPList:
-		return *(*[]*net.TCPAddr)(p)
-	case URL:
-		return *(**url.URL)(p)
-	case URLList:
-		return *(*[]*url.URL)(p)
-	case Uint64:
-		return *(*uint64)(p)
-	}
-	return nil
-}
-
 type Argument struct {
 	Name         string
 	Help         string
@@ -148,8 +102,84 @@ func (arg *Argument) initCommandArg(kcmd *kingpin.CmdClause) {
 	arg.init(kcmd.Arg(arg.Name, arg.Help))
 }
 
-func (arg *Argument) Value() interface{} {
-	return getValueFromPointer(arg.valuePointer, arg.Type)
+func (arg *Argument) Bool() bool {
+	return *(*bool)(arg.valuePointer)
+}
+
+func (arg *Argument) Bytes() units.Base2Bytes {
+	return *(*units.Base2Bytes)(arg.valuePointer)
+}
+
+func (arg *Argument) Duration() time.Duration {
+	return *(*time.Duration)(arg.valuePointer)
+}
+
+func (arg *Argument) Enum() string {
+	return *(*string)(arg.valuePointer)
+}
+
+func (arg *Argument) ExistingDir() string {
+	return *(*string)(arg.valuePointer)
+}
+
+func (arg *Argument) ExistingFile() string {
+	return *(*string)(arg.valuePointer)
+}
+
+func (arg *Argument) File() *os.File {
+	return *(**os.File)(arg.valuePointer)
+}
+
+func (arg *Argument) Float() float64 {
+	return *(*float64)(arg.valuePointer)
+}
+
+func (arg *Argument) IP() net.IP {
+	return *(*net.IP)(arg.valuePointer)
+}
+
+func (arg *Argument) Int() int {
+	return *(*int)(arg.valuePointer)
+}
+
+func (arg *Argument) Int64() int64 {
+	return *(*int64)(arg.valuePointer)
+}
+
+func (arg *Argument) OpenFile() *os.File {
+	return *(**os.File)(arg.valuePointer)
+}
+
+func (arg *Argument) String() string {
+	return *(*string)(arg.valuePointer)
+}
+
+func (arg *Argument) StringMap() map[string]string {
+	return *(*map[string]string)(arg.valuePointer)
+}
+
+func (arg *Argument) Strings() []string {
+	return *(*[]string)(arg.valuePointer)
+}
+
+func (arg *Argument) TCP() *net.TCPAddr {
+	return *(**net.TCPAddr)(arg.valuePointer)
+}
+
+func (arg *Argument) TCPList() []*net.TCPAddr {
+	return *(*[]*net.TCPAddr)(arg.valuePointer)
+}
+
+func (arg *Argument) URL() *url.URL {
+	return *(**url.URL)(arg.valuePointer)
+}
+
+func (arg *Argument) URLList() []*url.URL {
+	return *(*[]*url.URL)(arg.valuePointer)
+}
+
+func (arg *Argument) Uint64() uint64 {
+	return *(*uint64)(arg.valuePointer)
 }
 
 type Flag struct {
@@ -226,8 +256,84 @@ func (flag *Flag) initCommandFlag(kcmd *kingpin.CmdClause) {
 	flag.init(kcmd.Flag(flag.Name, flag.Help))
 }
 
-func (flag *Flag) Value() interface{} {
-	return getValueFromPointer(flag.valuePointer, flag.Type)
+func (flag *Flag) Bool() bool {
+	return *(*bool)(flag.valuePointer)
+}
+
+func (flag *Flag) Bytes() units.Base2Bytes {
+	return *(*units.Base2Bytes)(flag.valuePointer)
+}
+
+func (flag *Flag) Duration() time.Duration {
+	return *(*time.Duration)(flag.valuePointer)
+}
+
+func (flag *Flag) Enum() string {
+	return *(*string)(flag.valuePointer)
+}
+
+func (flag *Flag) ExistingDir() string {
+	return *(*string)(flag.valuePointer)
+}
+
+func (flag *Flag) ExistingFile() string {
+	return *(*string)(flag.valuePointer)
+}
+
+func (flag *Flag) File() *os.File {
+	return *(**os.File)(flag.valuePointer)
+}
+
+func (flag *Flag) Float() float64 {
+	return *(*float64)(flag.valuePointer)
+}
+
+func (flag *Flag) IP() net.IP {
+	return *(*net.IP)(flag.valuePointer)
+}
+
+func (flag *Flag) Int() int {
+	return *(*int)(flag.valuePointer)
+}
+
+func (flag *Flag) Int64() int64 {
+	return *(*int64)(flag.valuePointer)
+}
+
+func (flag *Flag) OpenFile() *os.File {
+	return *(**os.File)(flag.valuePointer)
+}
+
+func (flag *Flag) String() string {
+	return *(*string)(flag.valuePointer)
+}
+
+func (flag *Flag) StringMap() map[string]string {
+	return *(*map[string]string)(flag.valuePointer)
+}
+
+func (flag *Flag) Strings() []string {
+	return *(*[]string)(flag.valuePointer)
+}
+
+func (flag *Flag) TCP() *net.TCPAddr {
+	return *(**net.TCPAddr)(flag.valuePointer)
+}
+
+func (flag *Flag) TCPList() []*net.TCPAddr {
+	return *(*[]*net.TCPAddr)(flag.valuePointer)
+}
+
+func (flag *Flag) URL() *url.URL {
+	return *(**url.URL)(flag.valuePointer)
+}
+
+func (flag *Flag) URLList() []*url.URL {
+	return *(*[]*url.URL)(flag.valuePointer)
+}
+
+func (flag *Flag) Uint64() uint64 {
+	return *(*uint64)(flag.valuePointer)
 }
 
 type Command struct {
@@ -236,7 +342,7 @@ type Command struct {
 	Commands []Command
 	Args     []Argument
 	Flags    []Flag
-	Action   *func(*Context)
+	Action   func(*Context)
 	kcmd     *kingpin.CmdClause
 }
 
@@ -405,5 +511,5 @@ type Context struct {
 }
 
 func (context *Context) Action() {
-	(*context.Command.Action)(context)
+	context.Command.Action(context)
 }
