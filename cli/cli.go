@@ -236,7 +236,7 @@ type Command struct {
 	Commands []Command
 	Args     []Argument
 	Flags    []Flag
-	Action   func(*Context)
+	Action   *func(*Context)
 	kcmd     *kingpin.CmdClause
 }
 
@@ -393,7 +393,9 @@ func (app *Application) Run(args []string) {
 		}
 		log.Fatal(err)
 	}
-	context.Action()
+	if context.Command != nil && context.Command.Action != nil {
+		context.Action()
+	}
 }
 
 type Context struct {
@@ -403,5 +405,5 @@ type Context struct {
 }
 
 func (context *Context) Action() {
-	context.Command.Action(context)
+	(*context.Command.Action)(context)
 }
