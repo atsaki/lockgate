@@ -68,6 +68,7 @@ func LoadConfig(profile string) (*Config, error) {
 }
 
 func SetLogLevel(c *cli.Context) {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 	if !c.App.Flag("debug").Bool() {
 		log.SetOutput(ioutil.Discard)
 	}
