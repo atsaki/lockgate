@@ -44,6 +44,7 @@ var (
 			command.Firewallrule,
 			command.IP,
 			command.Network,
+			command.Nic,
 			command.Portforwardingrule,
 			command.ServiceOffering,
 			command.Sshkeypair,
