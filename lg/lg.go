@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	"github.com/atsaki/lockgate"
 	"github.com/atsaki/lockgate/cli"
 	"github.com/atsaki/lockgate/command"
 )
@@ -48,6 +49,7 @@ var (
 			command.Template,
 			command.VM,
 			command.Zone,
+			lockgate.Test,
 		},
 	}
 )

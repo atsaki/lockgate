@@ -83,8 +83,13 @@ var (
 				}
 			}
 
+			items := make([]interface{}, len(templates))
+			for i, t := range templates {
+				items[i] = t
+			}
+
 			w := lockgate.GetTabWriter(c)
-			w.Print(templates)
+			w.Print(items)
 		},
 	}
 

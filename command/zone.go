@@ -22,14 +22,19 @@ var (
 				log.Fatal(err)
 			}
 			params := cloudstack.ListZonesParameter{}
-			result, err := client.ListZones(params)
+			resp, err := client.ListZones(params)
 			if err != nil {
 				fmt.Println(err)
 				log.Fatal(err)
 			}
 
+			items := make([]interface{}, len(resp))
+			for i, r := range resp {
+				items[i] = r
+			}
+
 			w := lockgate.GetTabWriter(c)
-			w.Print(result)
+			w.Print(items)
 		},
 	}
 

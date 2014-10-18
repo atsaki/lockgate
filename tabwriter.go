@@ -9,22 +9,62 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/atsaki/golang-cloudstack-library"
 	"github.com/atsaki/lockgate/cli"
 )
 
-func convertToArrayOfMap(v interface{}) ([]map[string]interface{}, error) {
-	var m []map[string]interface{}
-	b, err := json.Marshal(v)
-	if err != nil {
-		log.Println("Faild to Marshal input")
-		return nil, err
+func convertToArrayOfMap(xs []interface{}) ([]map[string]interface{}, error) {
+	ys := make([]map[string]interface{}, len(xs))
+
+	for i, x := range xs {
+		var (
+			b   []byte
+			err error
+			m   map[string]interface{}
+		)
+
+		switch x.(type) {
+		case cloudstack.Firewallrule:
+			v := x.(cloudstack.Firewallrule)
+			b, err = json.Marshal(&v)
+		case cloudstack.Network:
+			v := x.(cloudstack.Network)
+			b, err = json.Marshal(&v)
+		case cloudstack.Portforwardingrule:
+			v := x.(cloudstack.Portforwardingrule)
+			b, err = json.Marshal(&v)
+		case cloudstack.Serviceoffering:
+			v := x.(cloudstack.Serviceoffering)
+			b, err = json.Marshal(&v)
+		case cloudstack.Template:
+			v := x.(cloudstack.Template)
+			b, err = json.Marshal(&v)
+		case cloudstack.Virtualmachine:
+			v := x.(cloudstack.Virtualmachine)
+			b, err = json.Marshal(&v)
+		case cloudstack.Publicipaddress:
+			v := x.(cloudstack.Publicipaddress)
+			b, err = json.Marshal(&v)
+		case cloudstack.Zone:
+			v := x.(cloudstack.Zone)
+			b, err = json.Marshal(&v)
+		default:
+			b, err = json.Marshal(&x)
+		}
+
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+
+		err = json.Unmarshal(b, &m)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		ys[i] = m
 	}
-	err = json.Unmarshal(b, &m)
-	if err != nil {
-		log.Println("Faild to convert input to []map[string]interface{}")
-		return nil, err
-	}
-	return m, nil
+	return ys, nil
 }
 
 type TabWriter struct {
@@ -38,7 +78,7 @@ type TabWriter struct {
 	keys      []string
 }
 
-func (tw *TabWriter) Print(xs interface{}) {
+func (tw *TabWriter) Print(xs []interface{}) {
 
 	table, err := convertToArrayOfMap(xs)
 	if err != nil {
@@ -48,7 +88,8 @@ func (tw *TabWriter) Print(xs interface{}) {
 
 	keys := tw.keys
 	if len(keys) == 0 && len(table) > 0 {
-		log.Println("keys is not specified. use keys of first item.", keys)
+		log.Println("keys is not specified. use keys of first item.")
+		log.Println("first item:", table[0])
 		for k, _ := range table[0] {
 			keys = append(keys, k)
 		}
@@ -60,7 +101,10 @@ func (tw *TabWriter) Print(xs interface{}) {
 				break
 			}
 		}
-		keys = append(append(keys[i:i+1], keys[0:i]...), keys[i+1:]...)
+		if len(keys) > 0 {
+			// move id column to left side
+			keys = append(append(keys[i:i+1], keys[0:i]...), keys[i+1:]...)
+		}
 	}
 	log.Println("keys:", keys)
 
@@ -108,7 +152,7 @@ func GetTabWriter(c *cli.Context) *TabWriter {
 		if ok {
 			keys = command.Keys
 		} else {
-			log.Println("Failed to get keys from config: " + c.Command.Name)
+			log.Println("Unable to get keys from config: " + c.Command.Name)
 		}
 	}
 

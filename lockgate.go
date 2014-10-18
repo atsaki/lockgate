@@ -16,6 +16,23 @@ import (
 	"gopkg.in/yaml.v1"
 )
 
+type Lister interface {
+	List(map[string]string) ([]interface{}, error)
+}
+
+func list(lister Lister, m map[string]string, c *cli.Context) {
+
+	items, err := lister.List(m)
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
+	}
+	fmt.Println("len", len(items))
+
+	w := GetTabWriter(c)
+	w.Print(items)
+}
+
 type AccountConfig struct {
 	URL       string `yaml:"url"`
 	Username  string `yaml:"username"`
