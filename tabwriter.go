@@ -162,7 +162,7 @@ func GetTabWriter(c *cli.Context) *TabWriter {
 		writer:    new(tabwriter.Writer),
 		minwidth:  0,
 		tabwidth:  8,
-		padding:   0,
+		padding:   1,
 		header:    !c.App.Flag("no-header").Bool(),
 		keys:      keys,
 	}
