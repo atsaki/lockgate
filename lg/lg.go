@@ -46,6 +46,7 @@ var (
 			command.Network,
 			command.Portforwardingrule,
 			command.ServiceOffering,
+			command.Sshkeypair,
 			command.Template,
 			command.VM,
 			command.Zone,

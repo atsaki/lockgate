@@ -45,6 +45,9 @@ func convertToArrayOfMap(xs []interface{}) ([]map[string]interface{}, error) {
 		case cloudstack.Publicipaddress:
 			v := x.(cloudstack.Publicipaddress)
 			b, err = json.Marshal(&v)
+		case cloudstack.Sshkeypair:
+			v := x.(cloudstack.Sshkeypair)
+			b, err = json.Marshal(&v)
 		case cloudstack.Zone:
 			v := x.(cloudstack.Zone)
 			b, err = json.Marshal(&v)

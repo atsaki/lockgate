@@ -152,8 +152,18 @@ var (
 				Required: true,
 			},
 			cli.Flag{
+				Name: "name",
+				Help: "The name of the virtualmachine",
+				Type: cli.String,
+			},
+			cli.Flag{
 				Name: "displayname",
 				Help: "The displayname of the virtualmachine",
+				Type: cli.String,
+			},
+			cli.Flag{
+				Name: "keypair",
+				Help: "The keypair of the virtualmachine",
 				Type: cli.String,
 			},
 		},
@@ -178,9 +188,17 @@ var (
 			if template != "" {
 				params.SetTemplateid(template)
 			}
+			name := c.Command.Flag("name").String()
+			if name != "" {
+				params.SetName(name)
+			}
 			displayname := c.Command.Flag("displayname").String()
 			if displayname != "" {
 				params.SetDisplayname(displayname)
+			}
+			keypair := c.Command.Flag("keypair").String()
+			if keypair != "" {
+				params.SetKeypair(keypair)
 			}
 
 			vm, err := client.DeployVirtualMachine(params)
