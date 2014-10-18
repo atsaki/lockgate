@@ -28,13 +28,8 @@ var (
 				log.Fatal(err)
 			}
 
-			items := make([]interface{}, len(resp))
-			for i, r := range resp {
-				items[i] = r
-			}
-
 			w := lockgate.GetTabWriter(c)
-			w.Print(items)
+			w.Print(resp)
 		},
 	}
 
@@ -72,13 +67,8 @@ var (
 				vms = append(vms, vm)
 			}
 
-			items := make([]interface{}, len(vms))
-			for i, vm := range vms {
-				items[i] = vm
-			}
-
 			w := lockgate.GetTabWriter(c)
-			w.Print(items)
+			w.Print(vms)
 		},
 	}
 
@@ -116,13 +106,8 @@ var (
 				vms = append(vms, vm)
 			}
 
-			items := make([]interface{}, len(vms))
-			for i, vm := range vms {
-				items[i] = vm
-			}
-
 			w := lockgate.GetTabWriter(c)
-			w.Print(items)
+			w.Print(vms)
 		},
 	}
 
@@ -208,7 +193,7 @@ var (
 			}
 
 			w := lockgate.GetTabWriter(c)
-			w.Print([]interface{}{vm})
+			w.Print([]cloudstack.Virtualmachine{vm})
 		},
 	}
 
@@ -246,13 +231,8 @@ var (
 				vms = append(vms, vm)
 			}
 
-			items := make([]interface{}, len(vms))
-			for i, vm := range vms {
-				items[i] = vm
-			}
-
 			w := lockgate.GetTabWriter(c)
-			w.Print(items)
+			w.Print(vms)
 		},
 	}
 

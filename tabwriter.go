@@ -5,69 +5,47 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"reflect"
 	"sort"
 	"strings"
 	"text/tabwriter"
 
-	"github.com/atsaki/golang-cloudstack-library"
 	"github.com/atsaki/lockgate/cli"
 )
 
-func convertToArrayOfMap(xs []interface{}) ([]map[string]interface{}, error) {
-	ys := make([]map[string]interface{}, len(xs))
+func getKeys(x interface{}) []string {
 
-	for i, x := range xs {
-		var (
-			b   []byte
-			err error
-			m   map[string]interface{}
-		)
+	v := reflect.ValueOf(x)
+	n := v.Type().NumField()
+	keys := make([]string, n, n)
 
-		switch x.(type) {
-		case cloudstack.Firewallrule:
-			v := x.(cloudstack.Firewallrule)
-			b, err = json.Marshal(&v)
-		case cloudstack.Network:
-			v := x.(cloudstack.Network)
-			b, err = json.Marshal(&v)
-		case cloudstack.Portforwardingrule:
-			v := x.(cloudstack.Portforwardingrule)
-			b, err = json.Marshal(&v)
-		case cloudstack.Serviceoffering:
-			v := x.(cloudstack.Serviceoffering)
-			b, err = json.Marshal(&v)
-		case cloudstack.Template:
-			v := x.(cloudstack.Template)
-			b, err = json.Marshal(&v)
-		case cloudstack.Virtualmachine:
-			v := x.(cloudstack.Virtualmachine)
-			b, err = json.Marshal(&v)
-		case cloudstack.Publicipaddress:
-			v := x.(cloudstack.Publicipaddress)
-			b, err = json.Marshal(&v)
-		case cloudstack.Sshkeypair:
-			v := x.(cloudstack.Sshkeypair)
-			b, err = json.Marshal(&v)
-		case cloudstack.Zone:
-			v := x.(cloudstack.Zone)
-			b, err = json.Marshal(&v)
-		default:
-			b, err = json.Marshal(&x)
+	for i := 0; i < n; i++ {
+		var key string
+		if v.Type().Field(i).Tag.Get("json") != "" {
+			key = v.Type().Field(i).Tag.Get("json")
+		} else {
+			key = v.Type().Field(i).Name
 		}
-
-		if err != nil {
-			log.Println(err)
-			return nil, err
-		}
-
-		err = json.Unmarshal(b, &m)
-		if err != nil {
-			log.Println(err)
-			return nil, err
-		}
-		ys[i] = m
+		keys[i] = key
 	}
-	return ys, nil
+	sort.Strings(keys)
+
+	return keys
+}
+
+func getFieldByTag(v reflect.Value, tag string) reflect.Value {
+
+	if v.Kind() != reflect.Struct {
+		log.Fatal("v's Kind must be struct")
+	}
+
+	for i := 0; i < v.Type().NumField(); i++ {
+		field := v.Type().Field(i)
+		if field.Tag.Get("json") == tag {
+			return v.FieldByName(field.Name)
+		}
+	}
+	return reflect.Value{}
 }
 
 type TabWriter struct {
@@ -81,52 +59,72 @@ type TabWriter struct {
 	keys      []string
 }
 
-func (tw *TabWriter) Print(xs []interface{}) {
+func (tw *TabWriter) Print(xs interface{}) {
 
-	table, err := convertToArrayOfMap(xs)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to convert result to map")
-		log.Fatal(err)
+	vs := reflect.ValueOf(xs)
+
+	if vs.Kind() != reflect.Slice {
+		log.Println("xs's Kind must be slice")
+		return
+	}
+
+	if vs.Len() == 0 {
+		return
+	}
+
+	if vs.Index(0).Kind() != reflect.Struct {
+		log.Println("Elements of xs must be struct")
+		return
 	}
 
 	keys := tw.keys
-	if len(keys) == 0 && len(table) > 0 {
+	if len(keys) == 0 && vs.Len() > 0 {
 		log.Println("keys is not specified. use keys of first item.")
-		log.Println("first item:", table[0])
-		for k, _ := range table[0] {
-			keys = append(keys, k)
-		}
-		sort.Strings(keys)
-		var i int
-		var k string
-		for i, k = range keys {
-			if k == "id" {
-				break
-			}
-		}
+		keys = getKeys(vs.Index(0).Interface())
 		if len(keys) > 0 {
 			// move id column to left side
+			var i int
+			var k string
+			for i, k = range keys {
+				if k == "id" {
+					break
+				}
+			}
 			keys = append(append(keys[i:i+1], keys[0:i]...), keys[i+1:]...)
 		}
 	}
-	log.Println("keys:", keys)
+	log.Println("keys", keys)
 
 	if tw.header {
 		fmt.Fprintln(tw.writer, strings.Join(keys, string(tw.separator)))
 	}
-
-	for _, m := range table {
+	for i := 0; i < vs.Len(); i++ {
 		s := ""
-		for _, k := range keys {
-			switch m[k].(type) {
-			case string, float64, bool:
-				s += fmt.Sprint(m[k])
-			default:
-				b, err := json.Marshal(m[k])
-				if err != nil {
-					log.Println("Faild to Marshal value of", k)
+		for _, key := range keys {
+
+			field := getFieldByTag(vs.Index(i), key)
+			if field.IsValid() {
+				// check if filed is Marshaler (Especially cloudstack.Null*).
+				p := reflect.New(field.Type())
+				p.Elem().Set(field)
+				marshaler, ok := p.Interface().(json.Marshaler)
+				if ok {
+					var v interface{}
+					var b []byte
+					var err error
+
+					b, err = marshaler.MarshalJSON()
+					if err != nil {
+						log.Println("Failed to marshal.", marshaler)
+					}
+					err = json.Unmarshal(b, &v)
+					if err != nil {
+						log.Println("Failed to unmarshal.", string(b))
+					}
+					s += fmt.Sprint(v)
+				} else {
+					s += fmt.Sprint(field.Interface())
 				}
-				s += fmt.Sprint(string(b))
 			}
 			s += string(tw.separator)
 		}

@@ -28,13 +28,8 @@ var (
 				log.Fatal(err)
 			}
 
-			items := make([]interface{}, len(resp))
-			for i, r := range resp {
-				items[i] = r
-			}
-
 			w := lockgate.GetTabWriter(c)
-			w.Print(items)
+			w.Print(resp)
 		},
 	}
 
