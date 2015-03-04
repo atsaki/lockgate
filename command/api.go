@@ -33,7 +33,11 @@ var (
 			lockgate.SetLogLevel(c)
 
 			command := c.Command.Arg("command").String()
-			params := c.Command.Arg("params").StringMap()
+
+			var params map[string]interface{}
+			for k, v := range c.Command.Arg("params").StringMap() {
+				params[k] = v
+			}
 
 			client, err := lockgate.GetClient(c)
 			if err != nil {
@@ -41,7 +45,7 @@ var (
 				log.Fatal(err)
 			}
 
-			result, err := client.Request(command, params)
+			result, err := client.RequestJson(command, params)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				log.Fatal(err)
@@ -72,6 +76,7 @@ var (
 			} else if strings.HasPrefix(command, "list") {
 				err = json.Unmarshal(value, &items)
 				if err != nil {
+					fmt.Println(string(value))
 					fmt.Fprintln(os.Stderr, err)
 					log.Fatal(err)
 				}

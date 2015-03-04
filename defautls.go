@@ -53,6 +53,15 @@ var (
 					"networkofferingname",
 				},
 			},
+			"nic list": CommandConfig{
+				Options: map[string]interface{}{},
+				Keys: []string{
+					"id",
+					"isdefault",
+					"ipaddress",
+					"netmask",
+				},
+			},
 			"firewallrule list": CommandConfig{
 				Options: map[string]interface{}{},
 				Keys: []string{

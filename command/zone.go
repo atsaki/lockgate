@@ -21,7 +21,7 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			params := cloudstack.ListZonesParameter{}
+			params := cloudstack.NewListZonesParameter()
 			resp, err := client.ListZones(params)
 			if err != nil {
 				fmt.Println(err)

@@ -127,8 +127,8 @@ func GetClient(c *cli.Context) (*cloudstack.Client, error) {
 		log.Fatal(err)
 	}
 
-	return cloudstack.NewClient(*url,
-		config.Account.APIKey, config.Account.SecretKey,
+	return cloudstack.NewClient(
+		url, config.Account.APIKey, config.Account.SecretKey,
 		config.Account.Username, config.Account.Password)
 }
 

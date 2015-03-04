@@ -13,6 +13,13 @@ var (
 	IPList = cli.Command{
 		Name: "list",
 		Help: "List ipaddresses",
+		Flags: []cli.Flag{
+			cli.Flag{
+				Name: "tags",
+				Help: "The tags",
+				Type: cli.StringMap,
+			},
+		},
 		Action: func(c *cli.Context) {
 
 			lockgate.SetLogLevel(c)
@@ -21,7 +28,12 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			params := cloudstack.ListPublicIpAddressesParameter{}
+			params := cloudstack.NewListPublicIpAddressesParameter()
+			tags := c.Command.Flag("tags").StringMap()
+			if len(tags) != 0 {
+				fmt.Println(tags)
+				params.Tags = tags
+			}
 			resp, err := client.ListPublicIpAddresses(params)
 			if err != nil {
 				fmt.Println(err)
@@ -35,7 +47,7 @@ var (
 
 	IP = cli.Command{
 		Name: "ip",
-		Help: "Manage ipaddresses",
+		Help: "Manage ipaddresses hoge",
 		Commands: []cli.Command{
 			IPList,
 		},

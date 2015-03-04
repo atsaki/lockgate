@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 
-	"github.com/atsaki/lockgate"
 	"github.com/atsaki/lockgate/cli"
 	"github.com/atsaki/lockgate/command"
 )
@@ -41,17 +40,17 @@ var (
 		Commands: []cli.Command{
 			command.Init,
 			command.API,
-			command.Firewallrule,
+			// command.Firewallrule,
 			command.IP,
-			command.Network,
-			command.Nic,
-			command.Portforwardingrule,
-			command.ServiceOffering,
-			command.Sshkeypair,
-			command.Template,
-			command.VM,
+			// command.Network,
+			// command.Nic,
+			// command.Portforwardingrule,
+			// command.ServiceOffering,
+			// command.Sshkeypair,
+			// command.Template,
+			// command.VM,
 			command.Zone,
-			lockgate.Test,
+			// lockgate.Test,
 		},
 	}
 )

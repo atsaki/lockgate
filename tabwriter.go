@@ -35,6 +35,10 @@ func getKeys(x interface{}) []string {
 
 func getFieldByTag(v reflect.Value, tag string) reflect.Value {
 
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
 	if v.Kind() != reflect.Struct {
 		log.Fatal("v's Kind must be struct")
 	}
@@ -72,10 +76,10 @@ func (tw *TabWriter) Print(xs interface{}) {
 		return
 	}
 
-	if vs.Index(0).Kind() != reflect.Struct {
-		log.Println("Elements of xs must be struct")
-		return
-	}
+	// if vs.Index(0).Kind() != reflect.Struct {
+	// 	log.Println("Elements of xs must be struct")
+	// 	return
+	// }
 
 	keys := tw.keys
 	if len(keys) == 0 && vs.Len() > 0 {
