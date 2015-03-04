@@ -1,0 +1,32 @@
+{
+	"ImportPath": "github.com/atsaki/lockgate/lg",
+	"GoVersion": "go1.3",
+	"Deps": [
+		{
+			"ImportPath": "code.google.com/p/go-uuid/uuid",
+			"Comment": "null-15",
+			"Rev": "35bc42037350f0078e3c974c6ea690f1926603ab"
+		},
+		{
+			"ImportPath": "github.com/alecthomas/units",
+			"Rev": "6b4e7dc5e3143b85ea77909c72caf89416fc2915"
+		},
+		{
+			"ImportPath": "github.com/andrew-d/go-termutil",
+			"Rev": "91702f30b7f6d63f574b486457bae6acb1534dce"
+		},
+		{
+			"ImportPath": "github.com/atsaki/golang-cloudstack-library",
+			"Rev": "3c521013420b01129b52e8f42ea92206cdead985"
+		},
+		{
+			"ImportPath": "gopkg.in/alecthomas/kingpin.v1",
+			"Comment": "v1.3.6",
+			"Rev": "55a69a226d28a43b913720f5d765706d49c8fa9e"
+		},
+		{
+			"ImportPath": "gopkg.in/yaml.v1",
+			"Rev": "9f9df34309c04878acc86042b16630b0f696e1de"
+		}
+	]
+}
